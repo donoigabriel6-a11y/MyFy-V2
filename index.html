@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MyFy – YouTube Music Player</title>
+  <title>MyFy – YouTube + MP3 Music Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -300,7 +300,13 @@
       overflow: hidden;
       position: relative;
       aspect-ratio: 16 / 9;
-      background: #000;
+      background: linear-gradient(135deg, #ff0000 0%, #f97316 50%, #a855f7 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 20px;
     }
 
     .card-thumb img {
@@ -717,18 +723,17 @@
     <div class="main-layout">
       <!-- LEFT: FEATURED / SEARCH / LIBRARY -->
       <div class="main-pane" id="mainPane">
-        <!-- sections are toggled via JS -->
         <section id="featuredSection">
           <div class="hero">
             <div class="hero-title">Featured tracks</div>
             <div class="hero-subtitle">
-              Hand-picked YouTube tracks. Click any card to start playing. You must be signed in to listen.
+              These use your local MP3 files from the repo. Click any card to start playing. You must be signed in to listen.
             </div>
           </div>
 
           <div class="section-header">
             <div class="section-title">Today’s picks</div>
-            <div class="section-subtitle">Some fun songs you can replace with your own IDs later.</div>
+            <div class="section-subtitle">MP3s served directly from your GitHub repo.</div>
           </div>
           <div class="card-grid" id="featuredGrid"></div>
         </section>
@@ -822,52 +827,64 @@
         <div class="volume-track" id="volumeTrack">
           <div class="volume-fill" id="volumeFill"></div>
         </div>
-        <span class="mini-badge">Powered by YouTube</span>
+        <span class="mini-badge">YouTube + local MP3s</span>
       </div>
     </footer>
   </div>
 
-  <!-- Hidden YouTube player (for audio/video) -->
+  <!-- Hidden YouTube player (for YouTube tracks) -->
   <div id="ytPlayerWrapper">
     <div id="ytPlayer"></div>
   </div>
 
   <script>
-    // ========= CONFIG =========
-    // TODO: Put your own YouTube Data API key here
+    // ========= API KEYS (TOP OF FILE) =========
+    // YouTube Data API v3 key
     const YT_API_KEY = "AIzaSyCAI5uYDCGWGP_2NyUpkzTe4B-FzO0wmPo";
+    // =========================================
 
-    // Featured tab — you can replace these videoIds with your own
+    // Featured tracks that use your local MP3 files.
+    // Make sure these filenames exist in your repo root.
     const featuredTracks = [
       {
-        videoId: "tPEE9ZwTmy0", // d4vd - Romantic Homicide (example)
+        videoId: "tPEE9ZwTmy0", // Romantic Homicide video (for link/lyrics only)
         title: "Romantic Homicide",
         channel: "d4vd",
-        thumb: "https://i.ytimg.com/vi/tPEE9ZwTmy0/mqdefault.jpg"
+        thumb: "https://i.ytimg.com/vi/tPEE9ZwTmy0/mqdefault.jpg",
+        sourceType: "local",
+        src: "d4vd - Romantic Homicide.mp3"
       },
       {
-        videoId: "2nGsig_y3pA", // d4vd - Feel It (example, might differ)
+        videoId: "2nGsig_y3pA", // Feel It
         title: "Feel It",
         channel: "d4vd",
-        thumb: "https://i.ytimg.com/vi/2nGsig_y3pA/mqdefault.jpg"
+        thumb: "https://i.ytimg.com/vi/2nGsig_y3pA/mqdefault.jpg",
+        sourceType: "local",
+        src: "d4vd - Feel It (Official Music Video).mp3"
       },
       {
         videoId: "LDU_Txk06tM", // Crab Rave
         title: "Crab Rave",
         channel: "Noisestorm",
-        thumb: "https://i.ytimg.com/vi/LDU_Txk06tM/mqdefault.jpg"
+        thumb: "https://i.ytimg.com/vi/LDU_Txk06tM/mqdefault.jpg",
+        sourceType: "local",
+        src: "Crab Rave By Noisestorm.mp3"
       },
       {
-        videoId: "QY6GqXc0w7E", // just an example ID for a rap track
-        title: "Young Black & Rich (Melly Mike)",
-        channel: "Melly Mike (example)",
-        thumb: "https://i.ytimg.com/vi/QY6GqXc0w7E/mqdefault.jpg"
+        videoId: "QY6GqXc0w7E", // Young Black & Rich (example)
+        title: "Young Black & Rich",
+        channel: "Melly Mike",
+        thumb: "https://i.ytimg.com/vi/QY6GqXc0w7E/mqdefault.jpg",
+        sourceType: "local",
+        src: "Melly Mike - Young Black & Rich (Official Music Video).mp3"
       },
       {
-        videoId: "dQw4w9WgXcQ", // placeholder fun
-        title: "Golden (HUNTERX demo)",
-        channel: "HUNTERX (example)",
-        thumb: "https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg"
+        videoId: "dQw4w9WgXcQ", // placeholder for Golden
+        title: "Golden",
+        channel: "HUNTERX",
+        thumb: "https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+        sourceType: "local",
+        src: "Golden By HUNTERX.mp3"
       }
     ];
 
@@ -882,7 +899,7 @@
     const welcomeLabel = document.getElementById("welcomeLabel");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    let authMode = "login"; // or "signup"
+    let authMode = "login";
     let currentUser = null;
 
     function loadUsers() {
@@ -1020,10 +1037,12 @@
       });
     });
 
-    // ========= YOUTUBE IFRAME PLAYER =========
+    // ========= PLAYER & STATE =========
     let ytApiReady = false;
-    let player = null;
-    let tracks = []; // active list (from featured or search or library)
+    let player = null;           // YouTube player
+    let audioPlayer = new Audio(); // local MP3 player
+    let currentSourceType = "youtube"; // "youtube" or "local"
+    let tracks = [];             // active list
     let currentIndex = -1;
     let timeTimer = null;
 
@@ -1068,23 +1087,42 @@
     function startTimeTimer() {
       clearTimeTimer();
       timeTimer = setInterval(() => {
-        if (!player || typeof player.getDuration !== "function") return;
-        const total = player.getDuration();
-        const cur = player.getCurrentTime();
-        if (!total || !isFinite(total)) return;
-        progressFill.style.width = `${(cur / total) * 100}%`;
-        currentTimeLabel.textContent = formatTime(cur);
-        durationLabel.textContent = formatTime(total);
+        if (currentSourceType === "local") {
+          if (!audioPlayer || !isFinite(audioPlayer.duration)) return;
+          const total = audioPlayer.duration || 0;
+          const cur = audioPlayer.currentTime || 0;
+          if (!total) return;
+          progressFill.style.width = `${(cur / total) * 100}%`;
+          currentTimeLabel.textContent = formatTime(cur);
+          durationLabel.textContent = formatTime(total);
+        } else {
+          if (!player || typeof player.getDuration !== "function") return;
+          const total = player.getDuration();
+          const cur = player.getCurrentTime();
+          if (!total || !isFinite(total)) return;
+          progressFill.style.width = `${(cur / total) * 100}%`;
+          currentTimeLabel.textContent = formatTime(cur);
+          durationLabel.textContent = formatTime(total);
+        }
       }, 500);
     }
 
     function setVolumeFromRatio(ratio) {
       const vol = Math.max(0, Math.min(1, ratio));
       volumeFill.style.width = `${vol * 100}%`;
-      if (player && typeof player.setVolume === "function") {
+      if (currentSourceType === "local") {
+        audioPlayer.volume = vol;
+      } else if (player && typeof player.setVolume === "function") {
         player.setVolume(vol * 100);
       }
     }
+
+    // Handle local audio ending
+    audioPlayer.addEventListener("ended", () => {
+      clearTimeTimer();
+      progressFill.style.width = "0%";
+      playNext();
+    });
 
     function createPlayer(videoId) {
       player = new YT.Player("ytPlayer", {
@@ -1096,20 +1134,25 @@
         },
         events: {
           onReady: () => {
-            setVolumeFromRatio(0.7);
+            if (currentSourceType === "youtube") {
+              setVolumeFromRatio(0.7);
+            }
           },
           onStateChange: (event) => {
-            if (event.data === YT.PlayerState.PLAYING) {
+            if (event.data === YT.PlayerState.PLAYING && currentSourceType === "youtube") {
               playToggleBtn.textContent = "⏸";
               startTimeTimer();
             } else if (
               event.data === YT.PlayerState.PAUSED ||
               event.data === YT.PlayerState.ENDED
             ) {
-              playToggleBtn.textContent = "▶";
-              if (event.data === YT.PlayerState.ENDED) {
-                clearTimeTimer();
-                progressFill.style.width = "0%";
+              if (currentSourceType === "youtube") {
+                playToggleBtn.textContent = "▶";
+                if (event.data === YT.PlayerState.ENDED) {
+                  clearTimeTimer();
+                  progressFill.style.width = "0%";
+                  playNext();
+                }
               }
             }
           }
@@ -1130,10 +1173,15 @@
 
       const thumbDiv = document.createElement("div");
       thumbDiv.className = "card-thumb";
-      const img = document.createElement("img");
-      img.src = track.thumb;
-      img.alt = track.title;
-      thumbDiv.appendChild(img);
+
+      if (track.thumb) {
+        const img = document.createElement("img");
+        img.src = track.thumb;
+        img.alt = track.title;
+        thumbDiv.appendChild(img);
+      } else {
+        thumbDiv.textContent = (track.title || "♪").slice(0, 2).toUpperCase();
+      }
 
       const titleDiv = document.createElement("div");
       titleDiv.className = "card-title";
@@ -1141,7 +1189,7 @@
 
       const descDiv = document.createElement("div");
       descDiv.className = "card-desc";
-      descDiv.textContent = track.channel;
+      descDiv.textContent = track.channel || (track.sourceType === "local" ? "Local file" : "Unknown");
 
       const playBtn = document.createElement("button");
       playBtn.className = "card-play-btn";
@@ -1158,10 +1206,9 @@
         if (listType === "featured") {
           tracks = featuredTracks.slice();
         } else if (listType === "search") {
-          // tracks already set in search
+          // tracks already set
         } else if (listType === "library") {
-          const libList = getCurrentLibrary();
-          tracks = libList;
+          tracks = getCurrentLibrary();
         }
         playFromIndex(index);
       });
@@ -1228,21 +1275,27 @@
           "Pick a track and we’ll show safe, non-copyright info here plus a quick link to YouTube for full lyrics.";
         return;
       }
-      lyricsMeta.textContent = `${track.title} · ${track.channel}`;
-      const ytUrl = `https://www.youtube.com/watch?v=${track.videoId}`;
+      lyricsMeta.textContent = `${track.title} · ${track.channel || ""}`;
+      const ytUrl = track.videoId
+        ? `https://www.youtube.com/watch?v=${track.videoId}`
+        : "https://www.youtube.com/";
       lyricsBody.innerHTML =
         `We can't show full lyrics here because of copyright, ` +
         `but you can open the official YouTube page and check the description or comments for lyrics.\n\n` +
         `Track title: ${track.title}\n` +
-        `Channel: ${track.channel}\n\n` +
+        `Artist/Channel: ${track.channel || "Unknown"}\n\n` +
         `Open on YouTube: ${ytUrl}`;
     }
 
     // ========= PLAYBACK =========
     function updateNowPlayingUI(track) {
       playerTrackTitle.textContent = track.title;
-      playerTrackArtist.textContent = track.channel;
-      playerThumb.innerHTML = `<img src="${track.thumb}" alt="${track.title}">`;
+      playerTrackArtist.textContent = track.channel || (track.sourceType === "local" ? "Local file" : "Unknown");
+      if (track.thumb) {
+        playerThumb.innerHTML = `<img src="${track.thumb}" alt="${track.title}">`;
+      } else {
+        playerThumb.innerHTML = "";
+      }
       updateLyricsPane(track);
     }
 
@@ -1250,34 +1303,67 @@
       if (!tracks.length || index < 0 || index >= tracks.length) return;
       const track = tracks[index];
       currentIndex = index;
+      currentSourceType = track.sourceType || "youtube";
       updateNowPlayingUI(track);
 
-      if (!ytApiReady) {
-        alert("YouTube API is still loading. Try again in a second.");
-        return;
+      // stop both players first
+      if (player && typeof player.stopVideo === "function") {
+        player.stopVideo();
       }
+      audioPlayer.pause();
 
-      if (!player) {
-        createPlayer(track.videoId);
+      if (currentSourceType === "local") {
+        audioPlayer.src = track.src;
+        audioPlayer.play();
+        playToggleBtn.textContent = "⏸";
+        startTimeTimer();
       } else {
-        player.loadVideoById(track.videoId);
+        if (!ytApiReady) {
+          alert("YouTube API is still loading. Try again in a second.");
+          return;
+        }
+        if (!player) {
+          createPlayer(track.videoId);
+        } else {
+          player.loadVideoById(track.videoId);
+        }
+        playToggleBtn.textContent = "⏸";
+        startTimeTimer();
       }
-
-      startTimeTimer();
     }
 
     function togglePlayPause() {
       if (!requireAuth()) return;
-      if (!player) {
-        if (tracks.length) playFromIndex(0);
-        else alert("Pick a track first.");
+      if (!tracks.length) {
+        alert("Pick a track first.");
         return;
       }
-      const state = player.getPlayerState();
-      if (state === YT.PlayerState.PLAYING) {
-        player.pauseVideo();
+
+      if (currentSourceType === "local") {
+        if (!audioPlayer.src) {
+          playFromIndex(0);
+          return;
+        }
+        if (audioPlayer.paused) {
+          audioPlayer.play();
+          playToggleBtn.textContent = "⏸";
+          startTimeTimer();
+        } else {
+          audioPlayer.pause();
+          playToggleBtn.textContent = "▶";
+          clearTimeTimer();
+        }
       } else {
-        player.playVideo();
+        if (!player) {
+          playFromIndex(0);
+          return;
+        }
+        const state = player.getPlayerState();
+        if (state === YT.PlayerState.PLAYING) {
+          player.pauseVideo();
+        } else {
+          player.playVideo();
+        }
       }
     }
 
@@ -1311,7 +1397,7 @@
       const idx = users.findIndex((u) => u.username === currentUser.username);
       if (idx === -1) return;
       const lib = users[idx].library || [];
-      if (!lib.some((t) => t.videoId === track.videoId)) {
+      if (!lib.some((t) => t.videoId === track.videoId && t.src === track.src)) {
         lib.push(track);
         users[idx].library = lib;
         saveUsers(users);
@@ -1328,7 +1414,7 @@
     const tagButtons = document.querySelectorAll(".tag-btn");
 
     async function searchYouTube(term) {
-      if (!YT_API_KEY || YT_API_KEY === "AIzaSyCAI5uYDCGWGP_2NyUpkzTe4B-FzO0wmPo") {
+      if (!YT_API_KEY || YT_API_KEY === "YOUR_YOUTUBE_API_KEY_HERE") {
         alert("You must put your YouTube API key into the code first.");
         return;
       }
@@ -1357,7 +1443,8 @@
           channel: item.snippet.channelTitle,
           thumb:
             item.snippet.thumbnails?.medium?.url ||
-            item.snippet.thumbnails?.default?.url
+            item.snippet.thumbnails?.default?.url,
+          sourceType: "youtube"
         }));
 
         renderResults(list);
@@ -1392,13 +1479,20 @@
     saveBtn.addEventListener("click", saveCurrentToLibrary);
 
     progressTrack.addEventListener("click", (event) => {
-      if (!player || typeof player.getDuration !== "function") return;
-      const total = player.getDuration();
-      if (!total || !isFinite(total)) return;
       const rect = progressTrack.getBoundingClientRect();
       const ratio = (event.clientX - rect.left) / rect.width;
       const clamped = Math.max(0, Math.min(1, ratio));
-      player.seekTo(total * clamped, true);
+
+      if (currentSourceType === "local") {
+        if (!audioPlayer || !isFinite(audioPlayer.duration)) return;
+        audioPlayer.currentTime = audioPlayer.duration * clamped;
+        startTimeTimer();
+      } else {
+        if (!player || typeof player.getDuration !== "function") return;
+        const total = player.getDuration();
+        if (!total || !isFinite(total)) return;
+        player.seekTo(total * clamped, true);
+      }
     });
 
     volumeTrack.addEventListener("click", (event) => {
@@ -1424,4 +1518,3 @@
   </script>
 </body>
 </html>
-

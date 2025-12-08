@@ -665,6 +665,13 @@
       opacity: 0;
       pointer-events: none;
     }
+
+    #ytPlayerWrapper.video-visible {
+      height: 180px;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
   </style>
 </head>
 <body>
@@ -827,6 +834,7 @@
         <div class="volume-track" id="volumeTrack">
           <div class="volume-fill" id="volumeFill"></div>
         </div>
+        <button class="pill-btn pill-btn--ghost" id="showVideoBtn">Show video</button>
         <span class="mini-badge">YouTube + local MP3s</span>
       </div>
     </footer>
@@ -1060,6 +1068,10 @@
     const volumeTrack = document.getElementById("volumeTrack");
     const volumeFill = document.getElementById("volumeFill");
 
+    const showVideoBtn = document.getElementById("showVideoBtn");
+    const ytPlayerWrapper = document.getElementById("ytPlayerWrapper");
+    let videoVisible = false;
+
     const resultsGrid = document.getElementById("resultsGrid");
     const resultsSubtitle = document.getElementById("resultsSubtitle");
     const libraryGrid = document.getElementById("libraryGrid");
@@ -1281,9 +1293,14 @@
         : "https://www.youtube.com/";
       lyricsBody.innerHTML =
         `We can't show full lyrics here because of copyright, ` +
-        `but you can open the official YouTube page and check the description or comments for lyrics.\n\n` +
-        `Track title: ${track.title}\n` +
-        `Artist/Channel: ${track.channel || "Unknown"}\n\n` +
+        `but you can open the official YouTube page and check the description or comments for lyrics.
+
+` +
+        `Track title: ${track.title}
+` +
+        `Artist/Channel: ${track.channel || "Unknown"}
+
+` +
         `Open on YouTube: ${ytUrl}`;
     }
 
@@ -1454,7 +1471,10 @@
       }
     }
 
-    searchForm.addEventListener("submit", (e) => {
+    // ========= PLAYER UI EVENTS =========
+    const searchFormEl = document.getElementById("searchForm");
+
+    searchFormEl.addEventListener("submit", (e) => {
       e.preventDefault();
       const term = searchInput.value.trim();
       if (!term) return;
@@ -1472,11 +1492,26 @@
       });
     });
 
-    // ========= PLAYER UI EVENTS =========
     playToggleBtn.addEventListener("click", togglePlayPause);
     nextBtn.addEventListener("click", playNext);
     prevBtn.addEventListener("click", playPrev);
     saveBtn.addEventListener("click", saveCurrentToLibrary);
+
+    showVideoBtn.addEventListener("click", () => {
+      if (currentSourceType !== "youtube" || !player) {
+        alert("This track is a local MP3 or no YouTube video is available.");
+        return;
+      }
+
+      videoVisible = !videoVisible;
+      if (videoVisible) {
+        ytPlayerWrapper.classList.add("video-visible");
+        showVideoBtn.textContent = "Hide video";
+      } else {
+        ytPlayerWrapper.classList.remove("video-visible");
+        showVideoBtn.textContent = "Show video";
+      }
+    });
 
     progressTrack.addEventListener("click", (event) => {
       const rect = progressTrack.getBoundingClientRect();

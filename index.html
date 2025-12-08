@@ -2,64 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Myfy – iTunes Powered Player</title>
+  <title>MyFy – YouTube Music Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+  <!-- YouTube IFrame Player API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
   <style>
     :root {
-      --bg-main: #121212;
+      --bg-main: #0b0b0b;
       --bg-elevated: #181818;
-      --bg-hover: #282828;
-      --accent: #1db954;
+      --bg-hover: #262626;
+      --accent: #ff0000;
       --text-primary: #ffffff;
       --text-secondary: #b3b3b3;
       --border-subtle: #2a2a2a;
       --radius-lg: 12px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background-color: var(--bg-main);
+      background: var(--bg-main);
       color: var(--text-primary);
       overflow: hidden;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .hidden {
-      display: none !important;
-    }
+    a { color: inherit; text-decoration: none; }
 
     .app {
       display: grid;
       grid-template-rows: auto 1fr auto;
-      grid-template-columns: 260px 1fr;
       height: 100vh;
-      background: radial-gradient(circle at top left, #1db95411 0, transparent 55%),
-                  radial-gradient(circle at bottom right, #1db95411 0, transparent 55%),
-                  var(--bg-main);
+      background:
+        radial-gradient(circle at top left, #ff000022 0, transparent 55%),
+        radial-gradient(circle at bottom right, #ff000022 0, transparent 55%),
+        var(--bg-main);
     }
 
-    /* TOP NAVBAR */
+    /* TOP NAV */
     .top-nav {
-      grid-column: 1 / 3;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 12px 20px;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(14px);
+      background: rgba(0,0,0,0.9);
       border-bottom: 1px solid #000;
-      z-index: 20;
+      backdrop-filter: blur(10px);
+      z-index: 10;
     }
 
     .top-nav-left {
@@ -72,32 +65,33 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #1df089, var(--accent));
+      background: radial-gradient(circle at 30% 30%, #ffb3b3, #ff0000);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #000;
       font-weight: 800;
       font-size: 18px;
+      color: #000;
     }
 
     .brand-name {
       font-weight: 700;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
       font-size: 18px;
     }
 
     .top-nav-right {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .search-bar {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-right: 12px;
       background: rgba(24,24,24,0.9);
       border-radius: 999px;
       padding: 4px 10px 4px 12px;
@@ -110,7 +104,7 @@
       background: transparent;
       color: var(--text-primary);
       font-size: 13px;
-      width: 180px;
+      width: 220px;
     }
 
     .search-bar input::placeholder {
@@ -120,26 +114,14 @@
     .pill-btn {
       border-radius: 999px;
       border: 0;
-      padding: 8px 18px;
-      font-size: 14px;
+      padding: 7px 16px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.16s ease-out;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-    }
-
-    .pill-btn--outline {
-      background: transparent;
-      color: var(--text-secondary);
-      border: 1px solid var(--border-subtle);
-    }
-
-    .pill-btn--outline:hover {
-      border-color: var(--text-secondary);
-      color: var(--text-primary);
-      background: rgba(255,255,255,0.02);
+      transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, filter 0.12s ease-out;
     }
 
     .pill-btn--solid {
@@ -148,163 +130,65 @@
     }
 
     .pill-btn--solid:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 18px rgba(0,0,0,0.4);
       filter: brightness(1.05);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
     }
 
-    .pill-btn--search {
-      padding: 6px 14px;
-      font-size: 13px;
-      background: #ffffff;
-      color: #000;
-    }
-
-    .pill-btn--search:hover {
-      transform: none;
-      box-shadow: none;
-      filter: brightness(0.96);
-    }
-
-    /* USER BADGE */
-    .user-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(24,24,24,0.9);
-      border: 1px solid var(--border-subtle);
-      font-size: 13px;
-    }
-
-    .user-avatar {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #1db954, #22c55e);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 700;
-      color: #000;
-    }
-
-    .user-logout-btn {
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      cursor: pointer;
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 999px;
-      transition: background 0.12s ease-out, color 0.12s ease-out;
-    }
-
-    .user-logout-btn:hover {
-      background: rgba(255,255,255,0.05);
-      color: var(--text-primary);
-    }
-
-    /* SIDEBAR */
-    .sidebar {
-      grid-row: 2 / 3;
-      background: #000000;
-      padding: 12px 12px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      border-right: 1px solid #000;
-      overflow: hidden;
-    }
-
-    .sidebar-section {
-      background: var(--bg-elevated);
-      border-radius: var(--radius-lg);
-      padding: 12px 14px;
-    }
-
-    .sidebar-nav-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 0;
-      font-size: 14px;
-      color: var(--text-secondary);
-      cursor: pointer;
-      border-radius: 6px;
-      padding-inline: 8px;
-      transition: background 0.1s ease-out, color 0.1s ease-out;
-    }
-
-    .sidebar-nav-item span.icon {
-      width: 20px;
-      text-align: center;
-      font-size: 16px;
-    }
-
-    .sidebar-nav-item.active,
-    .sidebar-nav-item:hover {
-      color: var(--text-primary);
-      background: var(--bg-hover);
-    }
-
-    .sidebar-label {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--text-secondary);
-      margin-bottom: 10px;
-    }
-
-    .sidebar-scroll {
-      max-height: 100%;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    .playlist-chip {
-      font-size: 13px;
-      color: var(--text-secondary);
-      padding: 6px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      transition: background 0.1s ease-out, color 0.1s ease-out;
-    }
-
-    .playlist-chip:hover {
-      background: var(--bg-hover);
-      color: var(--text-primary);
-    }
-
-    .sidebar-footer {
-      margin-top: 8px;
-      font-size: 11px;
-      color: var(--text-secondary);
-    }
-
-    /* MAIN CONTENT */
+    /* MAIN */
     .main {
-      grid-row: 2 / 3;
-      background: linear-gradient(180deg, #1f1f1f 0%, #121212 40%);
       padding: 16px 20px 20px;
       overflow-y: auto;
     }
 
-    .section {
+    .hero {
       margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .hero-title {
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .hero-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      max-width: 520px;
+    }
+
+    .tags-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag-btn {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 12px;
+      padding: 4px 10px;
+      background: rgba(0,0,0,0.5);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.12s ease-out, color 0.12s ease-out, border-color 0.12s ease-out;
+    }
+
+    .tag-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      border-color: var(--text-secondary);
     }
 
     .section-header {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      margin-bottom: 12px;
       gap: 8px;
+      margin-bottom: 12px;
     }
 
     .section-title {
@@ -319,43 +203,36 @@
 
     .card-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
       gap: 14px;
     }
 
     .card {
-      background: rgba(40,40,40,0.7);
+      background: rgba(36,36,36,0.9);
       border-radius: 10px;
       padding: 10px;
       cursor: pointer;
-      transition: background 0.12s ease-out, transform 0.12s ease-out, box-shadow 0.12s ease-out;
       position: relative;
       overflow: hidden;
+      transition: background 0.12s ease-out, transform 0.12s ease-out, box-shadow 0.12s ease-out;
     }
 
     .card:hover {
-      background: #2a2a2a;
+      background: var(--bg-hover);
       transform: translateY(-2px);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.6);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.7);
     }
 
-    .card-art {
+    .card-thumb {
       border-radius: 8px;
-      aspect-ratio: 1 / 1;
-      margin-bottom: 10px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
+      margin-bottom: 8px;
       overflow: hidden;
-      background: linear-gradient(135deg, #1db954 0%, #18a34a 30%, #3b82f6 100%);
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #000;
     }
 
-    .card-art img {
+    .card-thumb img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -374,7 +251,6 @@
     .card-desc {
       font-size: 12px;
       color: var(--text-secondary);
-      line-height: 1.4;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -382,16 +258,16 @@
 
     .card-play-btn {
       position: absolute;
-      right: 16px;
-      bottom: 16px;
-      width: 38px;
-      height: 38px;
+      right: 14px;
+      bottom: 14px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: var(--accent);
+      background: #ff0000;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.7);
       opacity: 0;
       transform: translateY(10px);
       transition: opacity 0.12s ease-out, transform 0.12s ease-out;
@@ -403,155 +279,15 @@
     }
 
     .card-play-btn svg {
-      width: 18px;
-      height: 18px;
-      fill: #000;
-    }
-
-    /* like button */
-    .card-like-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      border: none;
-      background: rgba(0,0,0,0.4);
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background 0.12s ease-out, color 0.12s ease-out, transform 0.12s ease-out;
-    }
-
-    .card-like-btn:hover {
-      background: rgba(0,0,0,0.7);
-      color: #fff;
-      transform: translateY(-1px);
-    }
-
-    .card-like-btn.liked {
-      color: var(--accent);
-    }
-
-    /* BIG HERO */
-    .hero {
-      display: flex;
-      gap: 18px;
-      align-items: flex-end;
-      margin-bottom: 26px;
-    }
-
-    .hero-art {
-      width: 180px;
-      height: 180px;
-      border-radius: 16px;
-      background: radial-gradient(circle at 20% 10%, #60fbd7, #1db954 35%, #0f172a 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 64px;
-      font-weight: 800;
-    }
-
-    .hero-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .hero-label {
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      font-size: 11px;
-      color: var(--text-secondary);
-    }
-
-    .hero-title {
-      font-size: 32px;
-      font-weight: 800;
-    }
-
-    .hero-desc {
-      font-size: 14px;
-      color: var(--text-secondary);
-      max-width: 480px;
-    }
-
-    .hero-meta-bottom {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-top: 4px;
-    }
-
-    .hero-dot {
-      width: 4px;
-      height: 4px;
-      border-radius: 999px;
-      background: var(--text-secondary);
-    }
-
-    .hero-actions {
-      margin-top: 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .hero-play-btn {
-      border-radius: 999px;
-      padding: 10px 24px;
-      border: 0;
-      background: var(--accent);
-      color: #000;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
-      transition: transform 0.12s ease-out, box-shadow 0.12s ease-out;
-    }
-
-    .hero-play-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 12px 36px rgba(0,0,0,0.8);
-    }
-
-    .hero-follow-btn {
-      border-radius: 999px;
-      padding: 9px 18px;
-      border: 1px solid var(--border-subtle);
-      background: transparent;
-      color: var(--text-secondary);
-      font-size: 13px;
-      cursor: pointer;
-      transition: background 0.12s ease-out, color 0.12s ease-out, border-color 0.12s ease-out;
-    }
-
-    .hero-follow-btn.following {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .hero-follow-btn:hover {
-      background: rgba(255,255,255,0.03);
-      color: var(--text-primary);
-      border-color: var(--text-secondary);
+      width: 16px;
+      height: 16px;
+      fill: #fff;
     }
 
     /* PLAYER BAR */
     .player-bar {
-      grid-column: 1 / 3;
       display: grid;
-      grid-template-columns: 280px 1fr 260px;
+      grid-template-columns: 280px 1fr 240px;
       align-items: center;
       padding: 8px 16px;
       background: #181818;
@@ -570,7 +306,7 @@
       width: 48px;
       height: 48px;
       border-radius: 4px;
-      background: linear-gradient(135deg, #1db954 0%, #16a34a 40%, #0ea5e9 100%);
+      background: linear-gradient(135deg, #ff0000 0%, #f97316 50%, #a855f7 100%);
       overflow: hidden;
     }
 
@@ -631,7 +367,7 @@
 
     .player-control-btn.play {
       background: var(--accent);
-      color: #000;
+      color: #fff;
       border-radius: 999px;
       width: 32px;
       height: 32px;
@@ -666,7 +402,7 @@
       position: absolute;
       inset: 0;
       width: 0%;
-      background: linear-gradient(90deg, var(--accent), #34d399);
+      background: linear-gradient(90deg, var(--accent), #f97316);
       border-radius: 999px;
     }
 
@@ -697,169 +433,27 @@
       background: #e5e5e5;
     }
 
-    /* AUTH MODAL */
-    .auth-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.65);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
-    }
-
-    .auth-card {
-      width: 100%;
-      max-width: 360px;
-      background: #181818;
-      border-radius: 16px;
-      padding: 20px 22px 18px;
-      box-shadow: 0 18px 50px rgba(0,0,0,0.8);
-      border: 1px solid #2b2b2b;
-      position: relative;
-    }
-
-    .auth-close {
-      position: absolute;
-      top: 8px;
-      right: 10px;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    .auth-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .auth-subtitle {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-    }
-
-    .auth-field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-bottom: 10px;
-    }
-
-    .auth-field label {
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .auth-field input {
-      border-radius: 8px;
-      border: 1px solid #333;
-      background: #101010;
-      padding: 8px 10px;
-      font-size: 14px;
-      color: var(--text-primary);
-      outline: none;
-    }
-
-    .auth-field input:focus {
-      border-color: var(--accent);
-    }
-
-    .auth-error {
-      font-size: 12px;
-      color: #f97373;
-      min-height: 16px;
-      margin-bottom: 6px;
-    }
-
-    .auth-toggle {
-      margin-top: 10px;
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    .auth-toggle button {
-      border: none;
-      background: transparent;
-      color: var(--accent);
-      cursor: pointer;
-      font-size: 12px;
-      padding: 0 2px;
-    }
-
-    /* LYRICS */
-    .lyrics-wrapper {
-      background: var(--bg-elevated);
-      border-radius: var(--radius-lg);
-      padding: 10px 12px;
-    }
-
-    #lyricsText {
-      width: 100%;
-      min-height: 140px;
-      background: transparent;
-      border: none;
-      outline: none;
-      resize: vertical;
-      color: var(--text-primary);
-      font-size: 13px;
-      line-height: 1.45;
-    }
-
-    #lyricsText::placeholder {
-      color: var(--text-secondary);
-    }
-
-    /* RESPONSIVE */
     @media (max-width: 900px) {
-      .app {
-        grid-template-columns: 0 1fr;
-      }
-
-      .sidebar {
-        display: none;
-      }
-
       .player-bar {
         grid-template-columns: minmax(0, 1fr);
         grid-auto-rows: auto;
         row-gap: 8px;
       }
-
-      .player-now {
-        justify-content: center;
-      }
-
-      .player-right {
-        justify-content: center;
-      }
-
-      .hero {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .hero-art {
-        width: 140px;
-        height: 140px;
-      }
-
-      .search-bar input {
-        width: 130px;
-      }
+      .player-right { justify-content: center; }
     }
 
-    @media (max-width: 600px) {
-      .top-nav-right {
-        gap: 6px;
-      }
+    @media (max-width: 650px) {
+      .search-bar input { width: 140px; }
+    }
 
-      .hero-title {
-        font-size: 24px;
-      }
+    /* Hidden player container */
+    #ytPlayerWrapper {
+      position: fixed;
+      inset: auto auto 80px 20px;
+      width: 320px;
+      height: 0;
+      opacity: 0;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -868,310 +462,43 @@
     <!-- TOP NAV -->
     <header class="top-nav">
       <div class="top-nav-left">
-        <div class="logo-dot">♪</div>
-        <div class="brand-name">Myfy</div>
+        <div class="logo-dot">▶</div>
+        <div class="brand-name">MyFy</div>
       </div>
       <div class="top-nav-right">
         <form id="searchForm" class="search-bar">
           <span>🔍</span>
-          <input id="searchInput" type="text" placeholder="Search songs or artists..." />
-          <button type="submit" class="pill-btn pill-btn--search">Search</button>
+          <input id="searchInput" type="text" placeholder="Search songs or artists on YouTube..." />
+          <button type="submit" class="pill-btn pill-btn--solid">Search</button>
         </form>
-        <button id="loginBtn" class="pill-btn pill-btn--outline">Log in</button>
-        <button id="signUpBtn" class="pill-btn pill-btn--solid">
-          <span>Sign up</span>
-        </button>
-        <div id="userBadge" class="user-badge hidden">
-          <div class="user-avatar" id="userAvatar">U</div>
-          <span id="userBadgeName">User</span>
-          <button id="logoutBtn" class="user-logout-btn">Log out</button>
-        </div>
       </div>
     </header>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="sidebar-section">
-        <div id="navHome" class="sidebar-nav-item active">
-          <span class="icon">🏠</span>
-          <span>Home</span>
-        </div>
-        <div id="navFeatured" class="sidebar-nav-item">
-          <span class="icon">⭐</span>
-          <span>Featured</span>
-        </div>
-        <div id="navSearch" class="sidebar-nav-item">
-          <span class="icon">🔍</span>
-          <span>Search</span>
-        </div>
-        <div id="navLibrary" class="sidebar-nav-item">
-          <span class="icon">📚</span>
-          <span>Your Library</span>
-        </div>
-      </div>
-
-      <div class="sidebar-section" style="flex: 1; display:flex; flex-direction:column;">
-        <div class="sidebar-label">Playlists</div>
-        <div class="sidebar-scroll">
-          <div class="playlist-chip">🔥 Daily Mix – Energy</div>
-          <div class="playlist-chip">🌙 Late Night Coding</div>
-          <div class="playlist-chip">💤 Lo-fi Chill Beats</div>
-          <div class="playlist-chip">🚗 Roadtrip 2025</div>
-          <div class="playlist-chip">🎧 Focus – Deep Work</div>
-          <div class="playlist-chip">🎮 Gaming Mode</div>
-          <div class="playlist-chip">☕ Coffee Shop Vibes</div>
-          <div class="playlist-chip">🧠 Brain Food</div>
-          <div class="playlist-chip">🕶 Synthwave Drive</div>
-          <div class="playlist-chip">🌅 Sunrise Sessions</div>
-          <div class="playlist-chip">🏋️ Workout Pump</div>
-        </div>
-        <div class="sidebar-footer">
-          Myfy &copy; 2025
-        </div>
-      </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
+    <!-- MAIN -->
     <main class="main">
-      <!-- Hero -->
-      <section class="hero" id="heroSection">
-        <div class="hero-art">M</div>
-        <div class="hero-meta">
-          <div class="hero-label">Powered by iTunes</div>
-          <div class="hero-title" id="heroTitle">Search any song</div>
-          <div class="hero-desc" id="heroDesc">
-            Type in an artist, track, or album at the top. We’ll grab real previews from the iTunes Store
-            using Apple’s Search API.
-          </div>
-          <div class="hero-meta-bottom">
-            <span>Myfy</span>
-            <span class="hero-dot"></span>
-            <span>Using iTunes Search API</span>
-          </div>
-          <div class="hero-actions">
-            <button class="hero-play-btn" id="heroPlayBtn">
-              <span class="hero-play-icon">▶</span>
-              <span>Play / Pause</span>
-            </button>
-            <button class="hero-follow-btn" id="heroFollowBtn">Follow Myfy</button>
-          </div>
+      <section class="hero">
+        <div class="hero-title">YouTube-powered music search</div>
+        <div class="hero-subtitle">
+          Type an artist, song, or vibe. We’ll search YouTube using its API and play full videos using the official YouTube player.
+        </div>
+        <div class="tags-row">
+          <button class="tag-btn">lofi hip hop</button>
+          <button class="tag-btn">phonk</button>
+          <button class="tag-btn">drake</button>
+          <button class="tag-btn">d4vd</button>
+          <button class="tag-btn">study beats</button>
+          <button class="tag-btn">gaming music</button>
         </div>
       </section>
 
-      <!-- Featured section -->
-      <section class="section" id="featuredSection">
+      <section>
         <div class="section-header">
-          <div>
-            <div class="section-title">Featured</div>
-            <div class="section-subtitle">Your uploaded tracks, ready to play.</div>
+          <div class="section-title">Results</div>
+          <div class="section-subtitle" id="resultsSubtitle">
+            Try a search like <strong>lofi hip hop</strong> or click one of the tags above.
           </div>
         </div>
-        <div class="card-grid" id="featuredGrid">
-          <article class="card"
-                   data-featured="true"
-                   data-index="0"
-                   data-id="featured-0"
-                   data-track="Golden"
-                   data-artist="HUNTERX"
-                   data-preview-url="Golden By HUNTERX.mp3"
-                   data-artwork="">
-            <button class="card-like-btn" aria-label="Save">♡</button>
-            <div class="card-art">
-              <span>G</span>
-            </div>
-            <div class="card-title">Golden</div>
-            <div class="card-desc">HUNTERX • Featured</div>
-            <button class="card-play-btn" aria-label="Play">
-              <svg viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"></path>
-              </svg>
-            </button>
-          </article>
-
-          <article class="card"
-                   data-featured="true"
-                   data-index="1"
-                   data-id="featured-1"
-                   data-track="Romantic Homicide"
-                   data-artist="d4vd"
-                   data-preview-url="d4vd - Romantic Homicide.mp3"
-                   data-artwork="">
-            <button class="card-like-btn" aria-label="Save">♡</button>
-            <div class="card-art">
-              <span>RH</span>
-            </div>
-            <div class="card-title">Romantic Homicide</div>
-            <div class="card-desc">d4vd • Featured</div>
-            <button class="card-play-btn" aria-label="Play">
-              <svg viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"></path>
-              </svg>
-            </button>
-          </article>
-
-          <article class="card"
-                   data-featured="true"
-                   data-index="2"
-                   data-id="featured-2"
-                   data-track="Feel It"
-                   data-artist="d4vd"
-                   data-preview-url="d4vd - Feel It (Official Music Video).mp3"
-                   data-artwork="">
-            <button class="card-like-btn" aria-label="Save">♡</button>
-            <div class="card-art">
-              <span>FI</span>
-            </div>
-            <div class="card-title">Feel It</div>
-            <div class="card-desc">d4vd • Featured</div>
-            <button class="card-play-btn" aria-label="Play">
-              <svg viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"></path>
-              </svg>
-            </button>
-          </article>
-
-          <article class="card"
-                   data-featured="true"
-                   data-index="3"
-                   data-id="featured-3"
-                   data-track="Crab Rave"
-                   data-artist="Noisestorm"
-                   data-preview-url="Crab Rave By Noisestorm.mp3"
-                   data-artwork="">
-            <button class="card-like-btn" aria-label="Save">♡</button>
-            <div class="card-art">
-              <span>CR</span>
-            </div>
-            <div class="card-title">Crab Rave</div>
-            <div class="card-desc">Noisestorm • Featured</div>
-            <button class="card-play-btn" aria-label="Play">
-              <svg viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"></path>
-              </svg>
-            </button>
-          </article>
-
-          <article class="card"
-                   data-featured="true"
-                   data-index="4"
-                   data-id="featured-4"
-                   data-track="Young Black & Rich"
-                   data-artist="Melly Mike"
-                   data-preview-url="Melly Mike - Young Black & Rich (Official Music Video).mp3"
-                   data-artwork="">
-            <button class="card-like-btn" aria-label="Save">♡</button>
-            <div class="card-art">
-              <span>YB</span>
-            </div>
-            <div class="card-title">Young Black & Rich</div>
-            <div class="card-desc">Melly Mike • Featured</div>
-            <button class="card-play-btn" aria-label="Play">
-              <svg viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"></path>
-              </svg>
-            </button>
-          </article>
-        </div>
-      </section>
-
-      <!-- Section: Search results -->
-      <section class="section" id="searchSection">
-        <div class="section-header">
-          <div>
-            <div class="section-title">Search results</div>
-            <div class="section-subtitle" id="resultsSubtitle">
-              Try searching for something like <strong>lofi</strong>, <strong>Drake</strong>, or <strong>Taylor Swift</strong>.
-            </div>
-          </div>
-        </div>
-        <div class="card-grid" id="searchResultsGrid">
-          <!-- Dynamic iTunes results will be injected here -->
-        </div>
-      </section>
-
-      <!-- Section: Static Trending (optional) -->
-      <section class="section" id="trendingSection">
-        <div class="section-header">
-          <div class="section-title">Trending now (static demo)</div>
-          <div class="section-subtitle">These are just example cards, not from the API.</div>
-        </div>
-        <div class="card-grid">
-          <article class="card" data-track="City Lights" data-id="static-citylights">
-            <button class="card-like-btn" aria-label="Save">♡</button>
-            <div class="card-art">
-              <span>CL</span>
-            </div>
-            <div class="card-title">City Lights</div>
-            <div class="card-desc">
-              Neon-soaked synthwave bangers for late night drives.
-            </div>
-            <button class="card-play-btn" aria-label="Play">
-              <svg viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"></path>
-              </svg>
-            </button>
-          </article>
-
-          <article class="card" data-track="Golden Hour" data-id="static-goldenhour">
-            <button class="card-like-btn" aria-label="Save">♡</button>
-            <div class="card-art">
-              <span>GH</span>
-            </div>
-            <div class="card-title">Golden Hour</div>
-            <div class="card-desc">
-              Warm indie vibes for sunsets and chill moments.
-            </div>
-            <button class="card-play-btn" aria-label="Play">
-              <svg viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"></path>
-              </svg>
-            </button>
-          </article>
-
-          <article class="card" data-track="Bassline Boost" data-id="static-bassline">
-            <button class="card-like-btn" aria-label="Save">♡</button>
-            <div class="card-art">
-              <span>BB</span>
-            </div>
-            <div class="card-title">Bassline Boost</div>
-            <div class="card-desc">
-              Heavy low-end tracks designed for big speakers.
-            </div>
-            <button class="card-play-btn" aria-label="Play">
-              <svg viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"></path>
-              </svg>
-            </button>
-          </article>
-        </div>
-      </section>
-
-      <!-- Library section -->
-      <section class="section" id="librarySection">
-        <div class="section-header">
-          <div>
-            <div class="section-title">Your Library</div>
-            <div class="section-subtitle" id="librarySubtitle">
-              Sign in and tap ♡ on any song to save it here.
-            </div>
-          </div>
-        </div>
-        <div class="card-grid" id="libraryGrid"></div>
-      </section>
-
-      <!-- Lyrics section -->
-      <section class="section" id="lyricsSection">
-        <div class="section-header">
-          <div>
-            <div class="section-title">Lyrics</div>
-            <div class="section-subtitle" id="lyricsSubtitle">
-              Pick a song and paste or type the lyrics here. (They’re saved per user & song on this device.)
-            </div>
-          </div>
-        </div>
-        <div class="lyrics-wrapper">
-          <textarea id="lyricsText" placeholder="Type or paste lyrics for this song here..."></textarea>
-        </div>
+        <div class="card-grid" id="resultsGrid"></div>
       </section>
     </main>
 
@@ -1180,12 +507,8 @@
       <div class="player-now">
         <div class="player-thumb" id="playerThumb"></div>
         <div class="player-track-meta">
-          <div class="player-track-title" id="playerTrackTitle">
-            Nothing playing yet
-          </div>
-          <div class="player-track-artist" id="playerTrackArtist">
-            Use the search bar to start
-          </div>
+          <div class="player-track-title" id="playerTrackTitle">Nothing playing yet</div>
+          <div class="player-track-artist" id="playerTrackArtist">Search YouTube to get started</div>
         </div>
       </div>
 
@@ -1210,103 +533,40 @@
           <div class="volume-fill" id="volumeFill"></div>
         </div>
       </div>
-
-      <!-- Hidden audio element used for playback -->
-      <audio id="audioPlayer"></audio>
     </footer>
   </div>
 
-  <!-- AUTH MODAL -->
-  <div id="authOverlay" class="auth-overlay hidden">
-    <div class="auth-card">
-      <button class="auth-close" id="authCloseBtn">×</button>
-      <div class="auth-title" id="authTitle">Log in</div>
-      <div class="auth-subtitle" id="authSubtitle">
-        Welcome back. Enter your details to continue.
-      </div>
-      <form id="authForm">
-        <div class="auth-field">
-          <label for="authUsername">Username</label>
-          <input id="authUsername" type="text" autocomplete="username" />
-        </div>
-        <div class="auth-field">
-          <label for="authPassword">Password</label>
-          <input id="authPassword" type="password" autocomplete="current-password" />
-        </div>
-        <div class="auth-field" id="confirmField">
-          <label for="authConfirm">Confirm password</label>
-          <input id="authConfirm" type="password" autocomplete="new-password" />
-        </div>
-        <div class="auth-error" id="authError"></div>
-        <button type="submit" class="pill-btn pill-btn--solid" id="authSubmitBtn" style="width: 100%; justify-content: center; margin-top: 4px;">
-          Continue
-        </button>
-      </form>
-      <div class="auth-toggle" id="authToggleText">
-        Don't have an account?
-        <button type="button" id="switchToSignup">Sign up</button>
-      </div>
-    </div>
+  <!-- Hidden YouTube player (sound comes from here) -->
+  <div id="ytPlayerWrapper">
+    <div id="ytPlayer"></div>
   </div>
 
   <script>
-    // ====== FEATURED TRACKS (LOCAL MP3s) ======
-    const FEATURED_TRACKS = [
-      {
-        id: "featured-0",
-        trackName: "Golden",
-        artistName: "HUNTERX",
-        previewUrl: "Golden By HUNTERX.mp3",
-        artworkUrl100: ""
-      },
-      {
-        id: "featured-1",
-        trackName: "Romantic Homicide",
-        artistName: "d4vd",
-        previewUrl: "d4vd - Romantic Homicide.mp3",
-        artworkUrl100: ""
-      },
-      {
-        id: "featured-2",
-        trackName: "Feel It",
-        artistName: "d4vd",
-        previewUrl: "d4vd - Feel It (Official Music Video).mp3",
-        artworkUrl100: ""
-      },
-      {
-        id: "featured-3",
-        trackName: "Crab Rave",
-        artistName: "Noisestorm",
-        previewUrl: "Crab Rave By Noisestorm.mp3",
-        artworkUrl100: ""
-      },
-      {
-        id: "featured-4",
-        trackName: "Young Black & Rich",
-        artistName: "Melly Mike",
-        previewUrl: "Melly Mike - Young Black & Rich (Official Music Video).mp3",
-        artworkUrl100: ""
-      }
-    ];
+    // ========= CONFIG =========
+    // TODO: put your own YouTube Data API key here
+    const YT_API_KEY = "AIzaSyCAI5uYDCGWGP_2NyUpkzTe4B-FzO0wmPo";
 
-    // ====== DOM ELEMENTS ======
+    // ========= STATE =========
+    let ytApiReady = false;
+    let player = null;
+    let tracks = [];   // { videoId, title, channel, thumb }
+    let currentIndex = -1;
+    let timeTimer = null;
+
+    // ========= DOM =========
     const searchForm = document.getElementById("searchForm");
     const searchInput = document.getElementById("searchInput");
-    const searchResultsGrid = document.getElementById("searchResultsGrid");
+    const resultsGrid = document.getElementById("resultsGrid");
     const resultsSubtitle = document.getElementById("resultsSubtitle");
+    const tagButtons = document.querySelectorAll(".tag-btn");
 
-    const audio = document.getElementById("audioPlayer");
-    const playToggleBtn = document.getElementById("playToggleBtn");
-    const heroPlayBtn = document.getElementById("heroPlayBtn");
-    const heroPlayIcon = heroPlayBtn.querySelector(".hero-play-icon");
-    const heroFollowBtn = document.getElementById("heroFollowBtn");
-
-    const heroTitle = document.getElementById("heroTitle");
-    const heroDesc = document.getElementById("heroDesc");
-
+    const playerThumb = document.getElementById("playerThumb");
     const playerTrackTitle = document.getElementById("playerTrackTitle");
     const playerTrackArtist = document.getElementById("playerTrackArtist");
-    const playerThumb = document.getElementById("playerThumb");
+
+    const playToggleBtn = document.getElementById("playToggleBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
 
     const progressTrack = document.getElementById("progressTrack");
     const progressFill = document.getElementById("progressFill");
@@ -1316,436 +576,112 @@
     const volumeTrack = document.getElementById("volumeTrack");
     const volumeFill = document.getElementById("volumeFill");
 
-    const navHome = document.getElementById("navHome");
-    const navFeatured = document.getElementById("navFeatured");
-    const navSearch = document.getElementById("navSearch");
-    const navLibrary = document.getElementById("navLibrary");
-
-    const heroSection = document.getElementById("heroSection");
-    const featuredSection = document.getElementById("featuredSection");
-    const searchSection = document.getElementById("searchSection");
-    const librarySection = document.getElementById("librarySection");
-    const libraryGrid = document.getElementById("libraryGrid");
-    const librarySubtitle = document.getElementById("librarySubtitle");
-
-    const prevBtn = document.getElementById("prevBtn");
-    const nextBtn = document.getElementById("nextBtn");
-
-    const playlistChips = document.querySelectorAll(".playlist-chip");
-
-    // Lyrics
-    const lyricsText = document.getElementById("lyricsText");
-    const lyricsSubtitle = document.getElementById("lyricsSubtitle");
-
-    // Auth UI
-    const loginBtn = document.getElementById("loginBtn");
-    const signUpBtn = document.getElementById("signUpBtn");
-    const userBadge = document.getElementById("userBadge");
-    const userBadgeName = document.getElementById("userBadgeName");
-    const userAvatar = document.getElementById("userAvatar");
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    const authOverlay = document.getElementById("authOverlay");
-    const authTitle = document.getElementById("authTitle");
-    const authSubtitle = document.getElementById("authSubtitle");
-    const authForm = document.getElementById("authForm");
-    const authUsername = document.getElementById("authUsername");
-    const authPassword = document.getElementById("authPassword");
-    const authConfirm = document.getElementById("authConfirm");
-    const confirmField = document.getElementById("confirmField");
-    const authError = document.getElementById("authError");
-    const authSubmitBtn = document.getElementById("authSubmitBtn");
-    const authToggleText = document.getElementById("authToggleText");
-    const authCloseBtn = document.getElementById("authCloseBtn");
-
-    // ====== STATE ======
-    let isPlaying = false;
-    let currentPlaylist = []; // array of track objects (iTunes or featured)
-    let currentIndex = -1;
-    let authMode = "login"; // or "signup"
-    let currentTrackId = null; // for lyrics
-
-    // ====== UTILS ======
+    // ========= UTILS =========
     function formatTime(seconds) {
-      if (!isFinite(seconds)) return "0:00";
+      if (!seconds || !isFinite(seconds)) return "0:00";
       const mins = Math.floor(seconds / 60);
       const secs = Math.floor(seconds % 60);
       const padded = secs < 10 ? "0" + secs : secs;
       return `${mins}:${padded}`;
     }
 
-    function setActiveNav(activeEl) {
-      [navHome, navFeatured, navSearch, navLibrary].forEach((el) => {
-        if (!el) return;
-        if (el === activeEl) {
-          el.classList.add("active");
-        } else {
-          el.classList.remove("active");
+    function clearTimeTimer() {
+      if (timeTimer) {
+        clearInterval(timeTimer);
+        timeTimer = null;
+      }
+    }
+
+    function startTimeTimer() {
+      clearTimeTimer();
+      timeTimer = setInterval(() => {
+        if (!player || typeof player.getDuration !== "function") return;
+        const total = player.getDuration();
+        const cur = player.getCurrentTime();
+        if (!total || !isFinite(total)) return;
+        progressFill.style.width = `${(cur / total) * 100}%`;
+        currentTimeLabel.textContent = formatTime(cur);
+        durationLabel.textContent = formatTime(total);
+      }, 500);
+    }
+
+    function setVolumeFromRatio(ratio) {
+      const vol = Math.max(0, Math.min(1, ratio));
+      volumeFill.style.width = `${vol * 100}%`;
+      if (player && typeof player.setVolume === "function") {
+        player.setVolume(vol * 100); // YouTube uses 0–100
+      }
+    }
+
+    // ========= YOUTUBE IFRAME API =========
+    function createPlayer(videoId) {
+      player = new YT.Player("ytPlayer", {
+        videoId,
+        playerVars: {
+          autoplay: 1,
+          rel: 0,
+          modestbranding: 1
+        },
+        events: {
+          onReady: () => {
+            setVolumeFromRatio(0.7);
+          },
+          onStateChange: (event) => {
+            if (event.data === YT.PlayerState.PLAYING) {
+              playToggleBtn.textContent = "⏸";
+              startTimeTimer();
+            } else if (
+              event.data === YT.PlayerState.PAUSED ||
+              event.data === YT.PlayerState.ENDED
+            ) {
+              playToggleBtn.textContent = "▶";
+              if (event.data === YT.PlayerState.ENDED) {
+                clearTimeTimer();
+                progressFill.style.width = "0%";
+              }
+            }
+          }
         }
       });
     }
 
-    function smoothScrollTo(el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    window.onYouTubeIframeAPIReady = function () {
+      ytApiReady = true;
+    };
 
-    // LocalStorage helpers for "accounts"
-    function getStoredUsers() {
-      try {
-        const raw = localStorage.getItem("myfyUsers");
-        return raw ? JSON.parse(raw) : {};
-      } catch {
-        return {};
-      }
-    }
-
-    function saveStoredUsers(users) {
-      localStorage.setItem("myfyUsers", JSON.stringify(users));
-    }
-
-    function getCurrentUser() {
-      return localStorage.getItem("myfyCurrentUser");
-    }
-
-    function setCurrentUser(username) {
-      if (username) {
-        localStorage.setItem("myfyCurrentUser", username);
-      } else {
-        localStorage.removeItem("myfyCurrentUser");
-      }
-      updateAuthUI();
-      renderLibrary();
-      updateLyricsUIOnAuthChange();
-    }
-
-    function initialsFromName(name) {
-      if (!name) return "U";
-      const parts = name.trim().split(/\s+/);
-      if (parts.length === 1) return parts[0][0].toUpperCase();
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-
-    // Helper: require login before doing something
-    function requireLogin() {
-      const user = getCurrentUser();
-      if (!user) {
-        openAuth("login");
-        authError.textContent = "Please log in to play songs.";
-        return false;
-      }
-      return true;
-    }
-
-    // ====== LIBRARY HELPERS ======
-    function libraryKey(username) {
-      return `myfyLibrary_${username}`;
-    }
-
-    function getUserLibrary(username) {
-      try {
-        const raw = localStorage.getItem(libraryKey(username));
-        return raw ? JSON.parse(raw) : [];
-      } catch {
-        return [];
-      }
-    }
-
-    function saveUserLibrary(username, library) {
-      localStorage.setItem(libraryKey(username), JSON.stringify(library));
-    }
-
-    function getCurrentLibrary() {
-      const user = getCurrentUser();
-      if (!user) return [];
-      return getUserLibrary(user);
-    }
-
-    function isTrackInLibraryById(trackId) {
-      if (!trackId) return false;
-      return getCurrentLibrary().some((item) => item.id === trackId);
-    }
-
-    function toggleLibraryTrack(trackData, likeBtn) {
-      const user = getCurrentUser();
-      if (!user) return;
-
-      const library = getUserLibrary(user);
-      const idx = library.findIndex((item) => item.id === trackData.id);
-
-      if (idx >= 0) {
-        library.splice(idx, 1);
-        likeBtn.classList.remove("liked");
-      } else {
-        library.push(trackData);
-        likeBtn.classList.add("liked");
-      }
-
-      saveUserLibrary(user, library);
-      renderLibrary();
-      syncHeartStates();
-    }
-
-    function renderLibrary() {
-      const user = getCurrentUser();
-      libraryGrid.innerHTML = "";
-
-      if (!user) {
-        librarySubtitle.textContent = "Sign in and tap ♡ on any song to save it here.";
-        return;
-      }
-
-      const library = getUserLibrary(user);
-      if (!library.length) {
-        librarySubtitle.textContent = "You haven't saved any songs yet. Tap ♡ on a song card to add it.";
-        return;
-      }
-
-      librarySubtitle.textContent = `Saved songs for ${user}`;
-
-      library.forEach((item) => {
-        const card = document.createElement("article");
-        card.className = "card";
-        card.dataset.id = item.id;
-        card.dataset.track = item.trackName || "Unknown track";
-        card.dataset.artist = item.artistName || "Unknown artist";
-        card.dataset.previewUrl = item.previewUrl || "";
-        card.dataset.artwork = item.artworkUrl100 || "";
-
-        const likeBtn = document.createElement("button");
-        likeBtn.className = "card-like-btn liked";
-        likeBtn.setAttribute("aria-label", "Remove from library");
-        likeBtn.textContent = "♡";
-
-        const artDiv = document.createElement("div");
-        artDiv.className = "card-art";
-        const artUrl = item.artworkUrl100;
-        if (artUrl) {
-          const img = document.createElement("img");
-          img.src = artUrl;
-          img.alt = item.trackName || "Cover";
-          artDiv.appendChild(img);
-        } else {
-          const initials = (item.trackName || "?")
-            .split(/\s+/)
-            .map((p) => p[0])
-            .join("")
-            .slice(0, 2)
-            .toUpperCase();
-          artDiv.textContent = initials || "♪";
-        }
-
-        const titleDiv = document.createElement("div");
-        titleDiv.className = "card-title";
-        titleDiv.textContent = item.trackName || "Unknown track";
-
-        const descDiv = document.createElement("div");
-        descDiv.className = "card-desc";
-        descDiv.textContent = item.artistName || "Unknown artist";
-
-        const playBtn = document.createElement("button");
-        playBtn.className = "card-play-btn";
-        playBtn.setAttribute("aria-label", "Play");
-        playBtn.innerHTML = `
-          <svg viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z"></path>
-          </svg>
-        `;
-
-        card.appendChild(likeBtn);
-        card.appendChild(artDiv);
-        card.appendChild(titleDiv);
-        card.appendChild(descDiv);
-        card.appendChild(playBtn);
-
-        libraryGrid.appendChild(card);
-      });
-    }
-
-    function syncHeartStates() {
-      const user = getCurrentUser();
-      const libraryIds = user ? getUserLibrary(user).map((t) => t.id) : [];
-
-      document.querySelectorAll(".card").forEach((card) => {
-        const id = card.dataset.id;
-        const likeBtn = card.querySelector(".card-like-btn");
-        if (!likeBtn || !id) return;
-        if (libraryIds.includes(id)) {
-          likeBtn.classList.add("liked");
-        } else {
-          likeBtn.classList.remove("liked");
-        }
-      });
-    }
-
-    // ====== LYRICS HELPERS ======
-    function lyricsKey(username, trackId) {
-      return `myfyLyrics_${username}_${trackId}`;
-    }
-
-    function loadLyricsForTrack(track) {
-      const user = getCurrentUser();
-      if (!user) {
-        lyricsSubtitle.textContent = "Log in to save lyrics per song.";
-        lyricsText.value = "";
-        lyricsText.disabled = true;
-        currentTrackId = null;
-        return;
-      }
-
-      const baseId =
-        track.id ||
-        track._myfyId ||
-        `anon-${(track.trackName || "").replace(/\s+/g, "_")}-${(track.artistName || "").replace(/\s+/g, "_")}`;
-
-      currentTrackId = baseId;
-      lyricsText.disabled = false;
-      const title = track.trackName || "Unknown track";
-      const artist = track.artistName || "";
-
-      lyricsSubtitle.textContent = artist
-        ? `Lyrics for "${title}" – ${artist}`
-        : `Lyrics for "${title}"`;
-
-      const key = lyricsKey(user, baseId);
-      const saved = localStorage.getItem(key) || "";
-      lyricsText.value = saved;
-    }
-
-    function updateLyricsUIOnAuthChange() {
-      const user = getCurrentUser();
-      if (!user) {
-        lyricsSubtitle.textContent =
-          "Pick a song and paste or type the lyrics here. (Log in to save them.)";
-        lyricsText.value = "";
-        lyricsText.disabled = true;
-        currentTrackId = null;
-        return;
-      }
-
-      lyricsText.disabled = false;
-      if (currentPlaylist.length && currentIndex >= 0) {
-        const track = currentPlaylist[currentIndex];
-        if (track) {
-          loadLyricsForTrack(track);
-          return;
-        }
-      }
-      lyricsSubtitle.textContent =
-        "Pick a song and paste or type the lyrics here. (They’re saved per user & song on this device.)";
-    }
-
-    lyricsText.addEventListener("input", () => {
-      const user = getCurrentUser();
-      if (!user || !currentTrackId) return;
-      const key = lyricsKey(user, currentTrackId);
-      localStorage.setItem(key, lyricsText.value);
-    });
-
-    // ====== PLAY A TRACK FROM PLAYLIST BY INDEX ======
-    function playFromPlaylist(index) {
-      if (!requireLogin()) return; // block if not logged in
-      if (!currentPlaylist.length) return;
-      if (index < 0 || index >= currentPlaylist.length) return;
-
-      const track = currentPlaylist[index];
-      currentIndex = index;
-
-      const trackName = track.trackName || "Unknown track";
-      const artistName = track.artistName || "Unknown artist";
-      const artworkSrc = (track.artworkUrl100 || "")
-        .replace("100x100bb", "300x300bb");
-
-      const trackId =
-        track.id ||
-        track._myfyId ||
-        `anon-${(track.trackName || "").replace(/\s+/g, "_")}-${(track.artistName || "").replace(/\s+/g, "_")}`;
-      track.id = trackId;
-
-      playerTrackTitle.textContent = trackName;
-      playerTrackArtist.textContent = artistName;
-
-      if (artworkSrc) {
-        playerThumb.innerHTML = `<img src="${artworkSrc}" alt="${trackName}">`;
-      } else {
-        playerThumb.innerHTML = "";
-      }
-
-      audio.src = track.previewUrl || "";
-      if (!audio.src) {
-        alert("This track doesn't have a preview or local file to play.");
-        return;
-      }
-
-      loadLyricsForTrack(track);
-
-      audio
-        .play()
-        .catch((error) => {
-          console.error("Audio play blocked:", error);
-        });
-    }
-
-    // ====== RENDER iTUNES SEARCH RESULTS ======
-    function renderResults(results) {
-      searchResultsGrid.innerHTML = "";
-
-      currentPlaylist = results.slice();
+    // ========= RENDER RESULTS =========
+    function renderResults(list) {
+      resultsGrid.innerHTML = "";
+      tracks = list || [];
       currentIndex = -1;
 
-      const user = getCurrentUser();
-
-      if (!results || results.length === 0) {
-        resultsSubtitle.innerHTML = "No results found. Try another search.";
+      if (!tracks.length) {
+        resultsSubtitle.textContent = "No results found. Try another search.";
         return;
       }
 
-      resultsSubtitle.innerHTML = `Found <strong>${results.length}</strong> tracks. Click a card to play a 30-second preview.`;
+      resultsSubtitle.innerHTML = `Found <strong>${tracks.length}</strong> results on YouTube.`;
 
-      const currentLibIds = user ? getCurrentLibrary().map((t) => t.id) : [];
-
-      results.forEach((track, index) => {
+      tracks.forEach((track, index) => {
         const card = document.createElement("article");
         card.className = "card";
-
-        const id = track.trackId
-          ? "itunes-" + track.trackId
-          : `itunes-${index}-${track.trackName || "unknown"}`;
-        track._myfyId = id;
-        card.dataset.id = id;
-
         card.dataset.index = index;
-        card.dataset.track = track.trackName || "Unknown track";
-        card.dataset.artist = track.artistName || "Unknown artist";
-        card.dataset.previewUrl = track.previewUrl || "";
-        card.dataset.artwork = track.artworkUrl100 || "";
 
-        const likeBtn = document.createElement("button");
-        likeBtn.className = "card-like-btn";
-        likeBtn.setAttribute("aria-label", "Save");
-        likeBtn.textContent = "♡";
-        if (currentLibIds.includes(id)) {
-          likeBtn.classList.add("liked");
-        }
+        const thumbDiv = document.createElement("div");
+        thumbDiv.className = "card-thumb";
 
-        const artDiv = document.createElement("div");
-        artDiv.className = "card-art";
-
-        if (track.artworkUrl100) {
-          const img = document.createElement("img");
-          img.src = track.artworkUrl100.replace("100x100bb", "300x300bb");
-          img.alt = card.dataset.track;
-          artDiv.appendChild(img);
-        } else {
-          artDiv.textContent = "♪";
-        }
+        const img = document.createElement("img");
+        img.src = track.thumb;
+        img.alt = track.title;
+        thumbDiv.appendChild(img);
 
         const titleDiv = document.createElement("div");
         titleDiv.className = "card-title";
-        titleDiv.textContent = card.dataset.track;
+        titleDiv.textContent = track.title;
 
         const descDiv = document.createElement("div");
         descDiv.className = "card-desc";
-        descDiv.textContent = `${card.dataset.artist} • ${track.collectionName || "Single"}`;
+        descDiv.textContent = track.channel;
 
         const playBtn = document.createElement("button");
         playBtn.className = "card-play-btn";
@@ -1756,402 +692,147 @@
           </svg>
         `;
 
-        card.appendChild(likeBtn);
-        card.appendChild(artDiv);
+        card.appendChild(thumbDiv);
         card.appendChild(titleDiv);
         card.appendChild(descDiv);
         card.appendChild(playBtn);
 
-        searchResultsGrid.appendChild(card);
-      });
+        card.addEventListener("click", () => playFromIndex(index));
 
-      smoothScrollTo(searchSection);
+        resultsGrid.appendChild(card);
+      });
     }
 
-    // ====== FETCH FROM iTUNES API ======
-    async function searchiTunes(term) {
-      const url = `https://itunes.apple.com/search?term=${encodeURIComponent(
-        term
-      )}&media=music&entity=song&limit=24&country=US`;
+    // ========= PLAYBACK =========
+    function updateNowPlayingUI(track) {
+      playerTrackTitle.textContent = track.title;
+      playerTrackArtist.textContent = track.channel;
+      playerThumb.innerHTML = `<img src="${track.thumb}" alt="${track.title}">`;
+    }
 
-      resultsSubtitle.textContent = "Searching iTunes…";
+    function playFromIndex(index) {
+      if (!tracks.length || index < 0 || index >= tracks.length) return;
+      const track = tracks[index];
+      currentIndex = index;
+      updateNowPlayingUI(track);
+
+      if (!ytApiReady) {
+        alert("YouTube API is still loading. Try again in a second.");
+        return;
+      }
+
+      if (!player) {
+        createPlayer(track.videoId);
+      } else {
+        player.loadVideoById(track.videoId);
+      }
+
+      startTimeTimer();
+    }
+
+    function togglePlayPause() {
+      if (!player) {
+        if (tracks.length) playFromIndex(0);
+        else alert("Search and pick a video first.");
+        return;
+      }
+      const state = player.getPlayerState();
+      if (state === YT.PlayerState.PLAYING) {
+        player.pauseVideo();
+      } else {
+        player.playVideo();
+      }
+    }
+
+    function playNext() {
+      if (!tracks.length) return;
+      const nextIndex = currentIndex >= tracks.length - 1 ? 0 : currentIndex + 1;
+      playFromIndex(nextIndex);
+    }
+
+    function playPrev() {
+      if (!tracks.length) return;
+      const prevIndex = currentIndex <= 0 ? tracks.length - 1 : currentIndex - 1;
+      playFromIndex(prevIndex);
+    }
+
+    // ========= SEARCH =========
+    async function searchYouTube(term) {
+      if (!YT_API_KEY || YT_API_KEY === "YOUR_YOUTUBE_API_KEY_HERE") {
+        alert("You must put your YouTube API key into the code first.");
+        return;
+      }
+
+      resultsSubtitle.textContent = "Searching YouTube…";
+
+      const url =
+        "https://www.googleapis.com/youtube/v3/search" +
+        `?part=snippet&type=video&maxResults=24&q=${encodeURIComponent(term)}&key=${encodeURIComponent(
+          YT_API_KEY
+        )}`;
 
       try {
         const res = await fetch(url);
         const data = await res.json();
-        renderResults(data.results || []);
+
+        if (data.error) {
+          console.error("YouTube API error:", data.error);
+          resultsSubtitle.textContent = data.error.message || "YouTube API error.";
+          return;
+        }
+
+        const list = (data.items || []).map((item) => ({
+          videoId: item.id.videoId,
+          title: item.snippet.title,
+          channel: item.snippet.channelTitle,
+          thumb: item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url
+        }));
+
+        renderResults(list);
       } catch (err) {
-        console.error("iTunes search error:", err);
-        resultsSubtitle.textContent = "Error contacting iTunes. Try again.";
+        console.error("YouTube fetch error:", err);
+        resultsSubtitle.textContent = "Network error talking to YouTube.";
       }
     }
 
-    // ====== SEARCH FORM HANDLER ======
     searchForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const term = searchInput.value.trim();
       if (!term) return;
-      searchiTunes(term);
+      searchYouTube(term);
     });
 
-    // ====== SIDEBAR NAV BUTTONS ======
-    navHome.addEventListener("click", () => {
-      setActiveNav(navHome);
-      smoothScrollTo(heroSection);
-    });
-
-    navFeatured.addEventListener("click", () => {
-      setActiveNav(navFeatured);
-      smoothScrollTo(featuredSection);
-    });
-
-    navSearch.addEventListener("click", () => {
-      setActiveNav(navSearch);
-      smoothScrollTo(searchSection);
-      searchInput.focus();
-    });
-
-    navLibrary.addEventListener("click", () => {
-      setActiveNav(navLibrary);
-      if (!requireLogin()) return;
-      renderLibrary();
-      smoothScrollTo(librarySection);
-    });
-
-    // ====== PLAYLIST CHIPS (TRIGGER SEARCHES) ======
-    playlistChips.forEach((chip) => {
-      chip.addEventListener("click", () => {
-        const term = chip.textContent.trim().replace(/^[^A-Za-z0-9]+/, "");
-        if (!term) return;
+    tagButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const term = btn.textContent.trim();
         searchInput.value = term;
-        searchiTunes(term);
+        searchYouTube(term);
       });
     });
 
-    // ====== GLOBAL CLICK HANDLER FOR LIKE + CARD (STATIC + FEATURED + SEARCH + LIBRARY) ======
-    document.addEventListener("click", (event) => {
-      const likeBtn = event.target.closest(".card-like-btn");
-      if (likeBtn) {
-        if (!requireLogin()) return;
-        const card = likeBtn.closest(".card");
-        if (!card) return;
-        const id = card.dataset.id;
-        const trackName =
-          card.dataset.track || card.querySelector(".card-title")?.textContent || "Unknown track";
-        const artistName = card.dataset.artist || "Unknown artist";
-        const previewUrl = card.dataset.previewUrl || "";
-        const artworkUrl100 = card.dataset.artwork || "";
-
-        toggleLibraryTrack(
-          { id, trackName, artistName, previewUrl, artworkUrl100 },
-          likeBtn
-        );
-        return;
-      }
-
-      const card = event.target.closest(".card");
-      if (!card) return;
-
-      const isFeatured = card.dataset.featured === "true";
-      const previewUrl = card.dataset.previewUrl;
-      const trackName =
-        card.dataset.track || card.querySelector(".card-title")?.textContent;
-      const artistName = card.dataset.artist || "";
-
-      // require login for anything that can play audio
-      if (!requireLogin()) return;
-
-      // Featured cards (local MP3 playlist)
-      if (isFeatured) {
-        const idx = Number(card.dataset.index || 0);
-        currentPlaylist = FEATURED_TRACKS.slice();
-        playFromPlaylist(idx);
-        return;
-      }
-
-      // Library or search cards with preview URL
-      const hasIndex = card.dataset.index !== undefined && card.dataset.index !== "";
-      if (previewUrl && hasIndex) {
-        const idx = Number(card.dataset.index);
-        playFromPlaylist(idx);
-        return;
-      }
-
-      // Library card without index: find its track in library or build one-off playlist
-      if (previewUrl && !hasIndex) {
-        const track = {
-          id: card.dataset.id,
-          trackName,
-          artistName,
-          previewUrl,
-          artworkUrl100: card.dataset.artwork || ""
-        };
-        currentPlaylist = [track];
-        playFromPlaylist(0);
-        return;
-      }
-
-      // Static demo cards (no audio)
-      playerTrackTitle.textContent = trackName;
-      playerTrackArtist.textContent =
-        artistName || "Demo playlist (no audio preview)";
-      playerThumb.innerHTML = "";
-      audio.pause();
-      audio.removeAttribute("src");
-    });
-
-    // ====== PLAYER CONTROLS ======
-    playToggleBtn.addEventListener("click", () => {
-      if (!requireLogin()) return;
-      if (!audio.src) {
-        alert("Pick a song card first to start playing!");
-        return;
-      }
-      if (audio.paused) {
-        audio.play().catch((error) => {
-          console.error("Audio play blocked:", error);
-        });
-      } else {
-        audio.pause();
-      }
-    });
-
-    heroPlayBtn.addEventListener("click", () => {
-      if (!requireLogin()) return;
-      if (!audio.src) {
-        alert("Search, click a featured song, or pick a card to start playback.");
-        return;
-      }
-      if (audio.paused) {
-        audio.play().catch((error) => {
-          console.error("Audio play blocked:", error);
-        });
-      } else {
-        audio.pause();
-      }
-    });
-
-    prevBtn.addEventListener("click", () => {
-      if (!requireLogin()) return;
-      if (!currentPlaylist.length) {
-        alert("No playlist yet. Search or use Featured and select a song first.");
-        return;
-      }
-      const nextIndex =
-        currentIndex <= 0 ? currentPlaylist.length - 1 : currentIndex - 1;
-      playFromPlaylist(nextIndex);
-    });
-
-    nextBtn.addEventListener("click", () => {
-      if (!requireLogin()) return;
-      if (!currentPlaylist.length) {
-        alert("No playlist yet. Search or use Featured and select a song first.");
-        return;
-      }
-      const nextIndex =
-        currentIndex >= currentPlaylist.length - 1 ? 0 : currentIndex + 1;
-      playFromPlaylist(nextIndex);
-    });
-
-    audio.addEventListener("play", () => {
-      isPlaying = true;
-      playToggleBtn.textContent = "⏸";
-      heroPlayIcon.textContent = "⏸";
-    });
-
-    audio.addEventListener("pause", () => {
-      isPlaying = false;
-      playToggleBtn.textContent = "▶";
-      heroPlayIcon.textContent = "▶";
-    });
-
-    audio.addEventListener("timeupdate", () => {
-      if (!audio.duration) return;
-      const pct = (audio.currentTime / audio.duration) * 100;
-      progressFill.style.width = `${pct}%`;
-      currentTimeLabel.textContent = formatTime(audio.currentTime);
-      durationLabel.textContent = formatTime(audio.duration);
-    });
-
-    audio.addEventListener("ended", () => {
-      isPlaying = false;
-      playToggleBtn.textContent = "▶";
-      heroPlayIcon.textContent = "▶";
-      progressFill.style.width = "0%";
-    });
+    // ========= PLAYER CONTROLS =========
+    playToggleBtn.addEventListener("click", togglePlayPause);
+    nextBtn.addEventListener("click", playNext);
+    prevBtn.addEventListener("click", playPrev);
 
     progressTrack.addEventListener("click", (event) => {
-      if (!audio.duration) return;
+      if (!player || typeof player.getDuration !== "function") return;
+      const total = player.getDuration();
+      if (!total || !isFinite(total)) return;
       const rect = progressTrack.getBoundingClientRect();
       const ratio = (event.clientX - rect.left) / rect.width;
       const clamped = Math.max(0, Math.min(1, ratio));
-      audio.currentTime = clamped * audio.duration;
+      player.seekTo(total * clamped, true);
     });
-
-    audio.volume = 0.7;
 
     volumeTrack.addEventListener("click", (event) => {
       const rect = volumeTrack.getBoundingClientRect();
       const ratio = (event.clientX - rect.left) / rect.width;
-      const clamped = Math.max(0, Math.min(1, ratio));
-      audio.volume = clamped;
-      volumeFill.style.width = `${clamped * 100}%`;
+      setVolumeFromRatio(ratio);
     });
 
-    // ====== HERO FOLLOW BUTTON ======
-    let isFollowing = false;
-    heroFollowBtn.addEventListener("click", () => {
-      isFollowing = !isFollowing;
-      if (isFollowing) {
-        heroFollowBtn.textContent = "Following";
-        heroFollowBtn.classList.add("following");
-      } else {
-        heroFollowBtn.textContent = "Follow Myfy";
-        heroFollowBtn.classList.remove("following");
-      }
-    });
-
-    // ====== AUTH MODAL LOGIC ======
-    function openAuth(mode) {
-      authMode = mode;
-      authError.textContent = "";
-      authUsername.value = "";
-      authPassword.value = "";
-      authConfirm.value = "";
-
-      if (mode === "login") {
-        authTitle.textContent = "Log in";
-        authSubtitle.textContent = "Welcome back. Enter your details to continue.";
-        confirmField.classList.add("hidden");
-        authSubmitBtn.textContent = "Log in";
-        authToggleText.innerHTML = `Don't have an account?
-          <button type="button" id="switchToSignupInner">Sign up</button>`;
-      } else {
-        authTitle.textContent = "Sign up";
-        authSubtitle.textContent = "Create an account to save your name here.";
-        confirmField.classList.remove("hidden");
-        authSubmitBtn.textContent = "Sign up";
-        authToggleText.innerHTML = `Already have an account?
-          <button type="button" id="switchToLoginInner">Log in</button>`;
-      }
-
-      authOverlay.classList.remove("hidden");
-      authUsername.focus();
-
-      const switchToSignupInner = document.getElementById("switchToSignupInner");
-      const switchToLoginInner = document.getElementById("switchToLoginInner");
-      if (switchToSignupInner) {
-        switchToSignupInner.addEventListener("click", () => openAuth("signup"));
-      }
-      if (switchToLoginInner) {
-        switchToLoginInner.addEventListener("click", () => openAuth("login"));
-      }
-    }
-
-    function closeAuth() {
-      authOverlay.classList.add("hidden");
-    }
-
-    loginBtn.addEventListener("click", () => openAuth("login"));
-    signUpBtn.addEventListener("click", () => openAuth("signup"));
-    authCloseBtn.addEventListener("click", closeAuth);
-
-    authOverlay.addEventListener("click", (e) => {
-      if (e.target === authOverlay) {
-        closeAuth();
-      }
-    });
-
-    authForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const username = authUsername.value.trim();
-      const password = authPassword.value;
-
-      authError.textContent = "";
-
-      if (!username || !password) {
-        authError.textContent = "Please fill in all required fields.";
-        return;
-      }
-
-      const users = getStoredUsers();
-
-      if (authMode === "signup") {
-        const confirmPw = authConfirm.value;
-        if (!confirmPw) {
-          authError.textContent = "Please confirm your password.";
-          return;
-        }
-        if (password !== confirmPw) {
-          authError.textContent = "Passwords do not match.";
-          return;
-        }
-        if (users[username]) {
-          authError.textContent = "That username is already taken.";
-          return;
-        }
-        if (password.length < 4) {
-          authError.textContent = "Password must be at least 4 characters.";
-          return;
-        }
-
-        users[username] = { password };
-        saveStoredUsers(users);
-        setCurrentUser(username);
-        closeAuth();
-      } else {
-        const record = users[username];
-        if (!record) {
-          authError.textContent = "Account not found.";
-          return;
-        }
-        if (record.password !== password) {
-          authError.textContent = "Incorrect password.";
-          return;
-        }
-        setCurrentUser(username);
-        closeAuth();
-      }
-
-      syncHeartStates();
-    });
-
-    logoutBtn.addEventListener("click", () => {
-      setCurrentUser(null);
-      audio.pause();
-      syncHeartStates();
-    });
-
-    // ====== AUTH UI UPDATE (WELCOME {USERNAME}) ======
-    function updateAuthUI() {
-      const user = getCurrentUser();
-
-      if (user) {
-        loginBtn.classList.add("hidden");
-        signUpBtn.classList.add("hidden");
-        userBadge.classList.remove("hidden");
-        userBadgeName.textContent = user;
-        userAvatar.textContent = initialsFromName(user);
-
-        heroTitle.textContent = `Welcome, ${user}!`;
-        heroDesc.textContent = "Pick Featured, Search, or Library to start listening.";
-      } else {
-        loginBtn.classList.remove("hidden");
-        signUpBtn.classList.remove("hidden");
-        userBadge.classList.add("hidden");
-
-        heroTitle.textContent = "Search any song";
-        heroDesc.textContent =
-          "Type in an artist, track, or album at the top. We’ll grab real previews from the iTunes Store using Apple’s Search API.";
-      }
-    }
-
-    // ====== INIT ======
-    updateAuthUI();
-    renderLibrary();
-    updateLyricsUIOnAuthChange();
-    syncHeartStates();
+    // default volume UI position
+    setVolumeFromRatio(0.7);
   </script>
 </body>
 </html>
-young black and rich

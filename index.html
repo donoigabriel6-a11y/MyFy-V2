@@ -228,6 +228,7 @@
         <input type="password" id="authPassword" placeholder="••••••••" />
         <div class="auth-error" id="authError"></div>
         <button type="button" class="pill solid" id="authSubmit">Continue</button>
+        <button type="button" class="pill" id="resetPasswordBtn" style="margin-top:4px;">Send password reset email</button>
         <button type="button" class="pill" id="resendVerifyBtn" style="display:none;margin-top:4px;">Resend verification email</button>
       </div>
     </div>
@@ -412,6 +413,7 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
     const authError = document.getElementById("authError");
     const authSubmit = document.getElementById("authSubmit");
     const resendVerifyBtn = document.getElementById("resendVerifyBtn");
+    const resetPasswordBtn = document.getElementById("resetPasswordBtn");
 
     // ---- Auth / reCAPTCHA ----
     let authMode = "login"; // or "signup"
@@ -457,6 +459,7 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
       signupTab.classList.remove("active");
       authSubmit.textContent="Log in";
       authError.textContent="";
+      resetPasswordBtn.style.display = "inline-flex";
     });
     signupTab.addEventListener("click",()=>{
       authMode="signup";
@@ -464,6 +467,7 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
       loginTab.classList.remove("active");
       authSubmit.textContent="Create account";
       authError.textContent="";
+      resetPasswordBtn.style.display = "none";
     });
 
     function signInWithProvider(provider){
@@ -519,6 +523,7 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
             signupTab.classList.remove("active");
             authSubmit.textContent="Log in";
             authPassword.value = "";
+            resetPasswordBtn.style.display = "inline-flex";
           })
           .catch(err=>{
             authError.textContent=err.message || "Could not create account.";
@@ -561,6 +566,26 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
         .catch((err) => {
           console.error("Resend verification error:", err);
           authError.textContent = err.message || "Could not resend verification email.";
+        });
+    });
+
+    resetPasswordBtn.addEventListener("click", () => {
+      if (!captchaVerified) {
+        authError.textContent = "Please complete the reCAPTCHA first.";
+        return;
+      }
+      const email = authEmail.value.trim();
+      if (!email) {
+        authError.textContent = "Enter your email above, then click reset.";
+        return;
+      }
+      auth.sendPasswordResetEmail(email)
+        .then(() => {
+          authError.textContent = "Password reset link sent to " + email + ". Check your inbox.";
+        })
+        .catch(err => {
+          console.error("Password reset error:", err);
+          authError.textContent = err.message || "Could not send reset email.";
         });
     });
 

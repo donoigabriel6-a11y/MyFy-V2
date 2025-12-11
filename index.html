@@ -9,6 +9,10 @@
   <!-- YouTube IFrame Player API -->
   <script src="https://www.youtube.com/iframe_api"></script>
 
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
   <style>
     :root {
       --bg-main: #050505;
@@ -634,7 +638,7 @@
       border-radius: 8px;
       border: 1px solid #333;
       background: #181818;
-      color: var(--text-primary);
+      color: #fff;
       font-size: 13px;
       padding: 7px 9px;
       outline: none;
@@ -671,7 +675,6 @@
       opacity: 1;
       pointer-events: auto;
     }
-
   </style>
 </head>
 <body>
@@ -687,8 +690,8 @@
       </div>
 
       <div class="auth-form" id="authForm">
-        <label>Username</label>
-        <input type="text" id="authUsername" placeholder="cooluser123" />
+        <label>Email</label>
+        <input type="text" id="authUsername" placeholder="you@example.com" />
         <label>Password</label>
         <input type="password" id="authPassword" placeholder="••••••••" />
         <div class="auth-error" id="authError"></div>
@@ -696,7 +699,7 @@
       </div>
 
       <div class="auth-footer">
-        Your account is stored only in this browser using localStorage. No real backend, just for fun. 💿
+        Auth is powered by Firebase. Library is stored per-account in this browser using localStorage. 💿
       </div>
     </div>
   </div>
@@ -849,6 +852,19 @@
     // ========= API KEYS (TOP OF FILE) =========
     // YouTube Data API v3 key
     const YT_API_KEY = "AIzaSyCAI5uYDCGWGP_2NyUpkzTe4B-FzO0wmPo";
+
+    // Firebase config (v8) using your project details
+    const firebaseConfig = {
+      apiKey: "AIzaSyCWQvsuaaNpNWSNr8PmI9IMt8dC7hyaxu8",
+      authDomain: "my-fy-ac0eb.firebaseapp.com",
+      projectId: "my-fy-ac0eb",
+      storageBucket: "my-fy-ac0eb.appspot.com",
+      messagingSenderId: "619474074736",
+      appId: "1:619474074736:web:b56a4b08c0ad16342ec8b5",
+      measurementId: "G-MLSMCVWS56"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     // =========================================
 
     // Featured tracks that use your local MP3 files.
@@ -896,73 +912,47 @@
       }
     ];
 
-    // ========= AUTH / USERS (localStorage) =========
+    // ========= AUTH / USERS via Firebase =========
     const authOverlay = document.getElementById("authOverlay");
     const authLoginTab = document.getElementById("authLoginTab");
     const authSignupTab = document.getElementById("authSignupTab");
-    const authUsername = document.getElementById("authUsername");
+    const authUsername = document.getElementById("authUsername"); // email
     const authPassword = document.getElementById("authPassword");
     const authError = document.getElementById("authError");
     const authSubmitBtn = document.getElementById("authSubmitBtn");
     const welcomeLabel = document.getElementById("welcomeLabel");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    let authMode = "login";
-    let currentUser = null;
+    let authMode = "login";   // "login" or "signup"
+    let currentUser = null;   // Firebase user
 
-    function loadUsers() {
+    function getDisplayName(user) {
+      if (!user) return "guest";
+      if (user.displayName) return user.displayName;
+      if (user.email) return user.email.split("@")[0];
+      return "user";
+    }
+
+    function getLibraryKey() {
+      const user = auth.currentUser;
+      if (!user) return null;
+      return "myfy_library_" + user.uid;
+    }
+
+    function loadLibrary() {
+      const key = getLibraryKey();
+      if (!key) return [];
       try {
-        return JSON.parse(localStorage.getItem("myfy_users") || "[]");
+        return JSON.parse(localStorage.getItem(key) || "[]");
       } catch {
         return [];
       }
     }
 
-    function saveUsers(users) {
-      localStorage.setItem("myfy_users", JSON.stringify(users));
-    }
-
-    function setCurrentUser(username) {
-      if (!username) {
-        currentUser = null;
-        localStorage.removeItem("myfy_currentUser");
-        welcomeLabel.textContent = "Welcome, guest";
-        logoutBtn.style.display = "none";
-        return;
-      }
-      const users = loadUsers();
-      const u = users.find((x) => x.username === username);
-      if (!u) return;
-      currentUser = u;
-      localStorage.setItem("myfy_currentUser", username);
-      welcomeLabel.textContent = `Welcome, ${username}!`;
-      logoutBtn.style.display = "inline-flex";
-    }
-
-    function refreshCurrentUser() {
-      const username = localStorage.getItem("myfy_currentUser");
-      if (!username) {
-        currentUser = null;
-        return;
-      }
-      const users = loadUsers();
-      const u = users.find((x) => x.username === username);
-      if (!u) {
-        currentUser = null;
-        localStorage.removeItem("myfy_currentUser");
-      } else {
-        currentUser = u;
-      }
-    }
-
-    function requireAuth() {
-      refreshCurrentUser();
-      if (!currentUser) {
-        authOverlay.style.display = "flex";
-        authError.textContent = "You need to sign in before playing songs.";
-        return false;
-      }
-      return true;
+    function saveLibrary(lib) {
+      const key = getLibraryKey();
+      if (!key) return;
+      localStorage.setItem(key, JSON.stringify(lib));
     }
 
     authLoginTab.addEventListener("click", () => {
@@ -982,47 +972,75 @@
     });
 
     authSubmitBtn.addEventListener("click", () => {
-      const username = authUsername.value.trim();
+      const email = authUsername.value.trim();
       const password = authPassword.value.trim();
-      if (!username || !password) {
-        authError.textContent = "Please fill in both username and password.";
+
+      if (!email || !password) {
+        authError.textContent = "Please fill in both email and password.";
         return;
       }
 
-      const users = loadUsers();
       if (authMode === "signup") {
-        if (users.some((u) => u.username === username)) {
-          authError.textContent = "That username is already taken.";
-          return;
-        }
-        users.push({ username, password, library: [] });
-        saveUsers(users);
-        setCurrentUser(username);
-        authOverlay.style.display = "none";
-        authUsername.value = "";
-        authPassword.value = "";
-        authError.textContent = "";
-        renderLibrary();
+        auth.createUserWithEmailAndPassword(email, password)
+          .then((cred) => {
+            const user = cred.user;
+            const name = email.split("@")[0];
+            return user.updateProfile({ displayName: name }).catch(() => {});
+          })
+          .then(() => {
+            authError.textContent = "";
+            authOverlay.style.display = "none";
+            authUsername.value = "";
+            authPassword.value = "";
+          })
+          .catch((err) => {
+            authError.textContent = err.message || "Error creating account.";
+          });
       } else {
-        const user = users.find((u) => u.username === username && u.password === password);
-        if (!user) {
-          authError.textContent = "Invalid username or password.";
-          return;
-        }
-        setCurrentUser(username);
-        authOverlay.style.display = "none";
-        authUsername.value = "";
-        authPassword.value = "";
-        authError.textContent = "";
-        renderLibrary();
+        auth.signInWithEmailAndPassword(email, password)
+          .then(() => {
+            authError.textContent = "";
+            authOverlay.style.display = "none";
+            authUsername.value = "";
+            authPassword.value = "";
+          })
+          .catch((err) => {
+            authError.textContent = err.message || "Error signing in.";
+          });
       }
     });
 
     logoutBtn.addEventListener("click", () => {
-      setCurrentUser(null);
+      auth.signOut().catch((err) => {
+        console.error("Sign-out error:", err);
+      });
+    });
+
+    function requireAuth() {
+      const user = auth.currentUser;
+      if (!user) {
+        authOverlay.style.display = "flex";
+        authError.textContent = "You need to sign in before playing songs.";
+        return false;
+      }
+      return true;
+    }
+
+    auth.onAuthStateChanged((user) => {
+      currentUser = user;
+
+      if (user) {
+        const name = getDisplayName(user);
+        welcomeLabel.textContent = `Welcome, ${name}!`;
+        logoutBtn.style.display = "inline-flex";
+        authOverlay.style.display = "none";
+      } else {
+        welcomeLabel.textContent = "Welcome, guest";
+        logoutBtn.style.display = "none";
+        authOverlay.style.display = "flex";
+      }
+
       renderLibrary();
-      authOverlay.style.display = "flex";
-      authError.textContent = "";
     });
 
     // ========= TABS =========
@@ -1030,7 +1048,7 @@
     const featuredSection = document.getElementById("featuredSection");
     const searchSection = document.getElementById("searchSection");
     const librarySection = document.getElementById("librarySection");
-    const searchForm = document.getElementById("searchForm");
+    const searchFormEl = document.getElementById("searchForm");
 
     navTabs.forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -1041,7 +1059,7 @@
         featuredSection.style.display = tab === "featured" ? "" : "none";
         searchSection.style.display = tab === "search" ? "" : "none";
         librarySection.style.display = tab === "library" ? "" : "none";
-        searchForm.style.display = tab === "search" ? "flex" : "none";
+        searchFormEl.style.display = tab === "search" ? "flex" : "none";
       });
     });
 
@@ -1236,6 +1254,32 @@
       });
     }
 
+    function getCurrentLibrary() {
+      return loadLibrary();
+    }
+
+    function renderLibrary() {
+      libraryGrid.innerHTML = "";
+      const user = auth.currentUser;
+
+      if (!user) {
+        librarySubtitle.textContent = "You must sign in to use the library.";
+        return;
+      }
+
+      const lib = loadLibrary();
+      if (!lib.length) {
+        librarySubtitle.textContent = "No tracks saved yet. Start playing and hit ♡ to save.";
+        return;
+      }
+
+      librarySubtitle.innerHTML = `You have <strong>${lib.length}</strong> saved tracks.`;
+      lib.forEach((track, index) => {
+        const card = createTrackCard(track, index, "library");
+        libraryGrid.appendChild(card);
+      });
+    }
+
     function renderResults(list) {
       resultsGrid.innerHTML = "";
       tracks = list || [];
@@ -1254,37 +1298,12 @@
       });
     }
 
-    function getCurrentLibrary() {
-      refreshCurrentUser();
-      if (!currentUser) return [];
-      return currentUser.library || [];
-    }
-
-    function renderLibrary() {
-      refreshCurrentUser();
-      libraryGrid.innerHTML = "";
-      if (!currentUser) {
-        librarySubtitle.textContent = "You must sign in to use the library.";
-        return;
-      }
-      const lib = getCurrentLibrary();
-      if (!lib.length) {
-        librarySubtitle.textContent = "No tracks saved yet. Start playing and hit ♡ to save.";
-        return;
-      }
-      librarySubtitle.innerHTML = `You have <strong>${lib.length}</strong> saved tracks.`;
-      lib.forEach((track, index) => {
-        const card = createTrackCard(track, index, "library");
-        libraryGrid.appendChild(card);
-      });
-    }
-
     // ========= LYRICS (SAFE) =========
     function updateLyricsPane(track) {
       if (!track) {
         lyricsMeta.textContent = "Nothing playing yet.";
         lyricsBody.textContent =
-          "Pick a track and we’ll show safe, non-copyright info here plus a quick link to YouTube for full lyrics.";
+          "Pick a track and we’ll show safe, non-copyright info here plus a quick link to YouTube for the full lyrics.";
         return;
       }
       lyricsMeta.textContent = `${track.title} · ${track.channel || ""}`;
@@ -1399,26 +1418,18 @@
     }
 
     function saveCurrentToLibrary() {
-      refreshCurrentUser();
-      if (!currentUser) {
-        authOverlay.style.display = "flex";
-        authError.textContent = "Sign in to save tracks to your library.";
-        return;
-      }
+      if (!requireAuth()) return;
       if (currentIndex < 0 || !tracks.length) {
         alert("Play a track first, then you can save it.");
         return;
       }
+
       const track = tracks[currentIndex];
-      const users = loadUsers();
-      const idx = users.findIndex((u) => u.username === currentUser.username);
-      if (idx === -1) return;
-      const lib = users[idx].library || [];
+      const lib = loadLibrary();
+
       if (!lib.some((t) => t.videoId === track.videoId && t.src === track.src)) {
         lib.push(track);
-        users[idx].library = lib;
-        saveUsers(users);
-        currentUser = users[idx];
+        saveLibrary(lib);
         renderLibrary();
         alert("Saved to your library.");
       } else {
@@ -1431,8 +1442,8 @@
     const tagButtons = document.querySelectorAll(".tag-btn");
 
     async function searchYouTube(term) {
-      if (!YT_API_KEY || YT_API_KEY === "YOUR_YOUTUBE_API_KEY_HERE") {
-        alert("You must put your YouTube API key into the code first.");
+      if (!YT_API_KEY || YT_API_KEY === "") {
+        alert("You must have a valid YouTube API key configured.");
         return;
       }
 
@@ -1472,8 +1483,6 @@
     }
 
     // ========= PLAYER UI EVENTS =========
-    const searchFormEl = document.getElementById("searchForm");
-
     searchFormEl.addEventListener("submit", (e) => {
       e.preventDefault();
       const term = searchInput.value.trim();
@@ -1538,15 +1547,7 @@
 
     // ========= INITIALIZE =========
     (function init() {
-      refreshCurrentUser();
-      if (currentUser) {
-        setCurrentUser(currentUser.username);
-        authOverlay.style.display = "none";
-      } else {
-        authOverlay.style.display = "flex";
-      }
       renderFeatured();
-      renderLibrary();
       setVolumeFromRatio(0.7);
       updateLyricsPane(null);
     })();

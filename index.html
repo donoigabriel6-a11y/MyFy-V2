@@ -12,6 +12,8 @@
   <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <!-- reCAPTCHA v2 -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
   <style>
@@ -157,9 +159,7 @@
     .player-artist{font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .player-center{display:flex;flex-direction:column;align-items:center;gap:6px;}
     .controls{display:flex;align-items:center;gap:12px;}
-    .ctrl{
-      cursor:pointer;color:var(--text-secondary);font-size:18px;
-    }
+    .ctrl{cursor:pointer;color:var(--text-secondary);font-size:18px;}
     .ctrl.play{
       width:30px;height:30px;border-radius:999px;background:var(--accent);
       display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;
@@ -175,7 +175,7 @@
       display:flex;align-items:center;justify-content:center;z-index:40;
     }
     .auth-card{
-      width:320px;max-width:90vw;background:#111;border-radius:14px;padding:18px;border:1px solid #333;
+      width:340px;max-width:90vw;background:#111;border-radius:14px;padding:18px;border:1px solid #333;
       box-shadow:0 18px 45px rgba(0,0,0,.85);
     }
     .auth-title{font-size:20px;font-weight:700;margin-bottom:4px;}
@@ -217,7 +217,10 @@
           <span style="flex:1;height:1px;background:#333;"></span>
         </div>
         <div style="margin:6px 0;">
-          <div class="g-recaptcha" data-sitekey="6Ler4icsAAAAAOa9mOF-wxVRLBIaVGQiN5LL_BTA" data-callback="onCaptchaSuccess"></div>
+          <!-- Replace YOUR_RECAPTCHA_SITE_KEY_HERE with your real v2 site key -->
+          <div class="g-recaptcha"
+               data-sitekey="6Ler4icsAAAAAOa9mOF-wxVRLBIaVGQiN5LL_BTA"
+               data-callback="onCaptchaSuccess"></div>
         </div>
         <label>Email</label>
         <input type="text" id="authEmail" placeholder="you@example.com" />
@@ -225,6 +228,7 @@
         <input type="password" id="authPassword" placeholder="••••••••" />
         <div class="auth-error" id="authError"></div>
         <button type="button" class="pill solid" id="authSubmit">Continue</button>
+        <button type="button" class="pill" id="resendVerifyBtn" style="display:none;margin-top:4px;">Resend verification email</button>
       </div>
     </div>
   </div>
@@ -308,7 +312,7 @@
           <span class="badge">beta</span>
         </div>
         <div class="lyrics-body" id="lyricsBody">
-Pick a track and we’ll show safe, non‑copyright info here plus a link to YouTube for full lyrics.
+Pick a track and we’ll show safe, non-copyright info here plus a link to YouTube for full lyrics.
         </div>
       </aside>
     </div>
@@ -407,10 +411,23 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
     const authPassword = document.getElementById("authPassword");
     const authError = document.getElementById("authError");
     const authSubmit = document.getElementById("authSubmit");
+    const resendVerifyBtn = document.getElementById("resendVerifyBtn");
 
-    // ---- Auth ----
+    // ---- Auth / reCAPTCHA ----
     let authMode = "login"; // or "signup"
     let captchaVerified = false;
+
+    function onCaptchaSuccess() {
+      captchaVerified = true;
+      authError.textContent = "";
+    }
+    function resetCaptcha() {
+      captchaVerified = false;
+      if (typeof grecaptcha !== "undefined" && grecaptcha.reset) {
+        grecaptcha.reset();
+      }
+    }
+    window.onCaptchaSuccess = onCaptchaSuccess;
 
     function getDisplayName(user){
       if(!user) return "guest";
@@ -448,18 +465,6 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
       authSubmit.textContent="Create account";
       authError.textContent="";
     });
-    function onCaptchaSuccess() {
-      captchaVerified = true;
-      authError.textContent = "";
-    }
-    function resetCaptcha() {
-      captchaVerified = false;
-      if (typeof grecaptcha !== "undefined" && grecaptcha.reset) {
-        grecaptcha.reset();
-      }
-    }
-    window.onCaptchaSuccess = onCaptchaSuccess;
-
 
     function signInWithProvider(provider){
       if (!captchaVerified) {
@@ -468,8 +473,8 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
       }
       auth.signInWithPopup(provider)
         .then(()=>{
-          authError.textContent="";
-          authOverlay.style.display="none";
+          authError.textContent = "";
+          authOverlay.style.display = "none";
         })
         .catch(err=>{
           console.error(err);
@@ -499,22 +504,64 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
           .then(cred=>{
             const name=email.split("@")[0];
             cred.user.updateProfile({displayName:name}).catch(()=>{});
-            authError.textContent="";
-            authOverlay.style.display="none";
+            // Send verification email
+            cred.user.sendEmailVerification()
+              .then(()=>{
+                authError.textContent = "We sent a verification link to " + email + ". Click it, then come back and log in.";
+              })
+              .catch(err=>{
+                console.error("Verification email error:", err);
+                authError.textContent = "Account created, but we couldn't send the verification email: " + (err.message || "");
+              });
+            // Switch UI to login mode and keep overlay open
+            authMode="login";
+            loginTab.classList.add("active");
+            signupTab.classList.remove("active");
+            authSubmit.textContent="Log in";
+            authPassword.value = "";
           })
           .catch(err=>{
             authError.textContent=err.message || "Could not create account.";
           });
       }else{
         auth.signInWithEmailAndPassword(email,pass)
-          .then(()=>{
-            authError.textContent="";
-            authOverlay.style.display="none";
+          .then((cred)=>{
+            const user = cred.user;
+            const usesPassword = user.providerData.some(p => p.providerId === "password");
+            if (usesPassword && !user.emailVerified) {
+              authError.textContent = "Please verify your email first. We just sent you a link again.";
+              user.sendEmailVerification().catch(()=>{});
+              // keep overlay open; don't hide
+            } else {
+              authError.textContent="";
+              authOverlay.style.display="none";
+            }
           })
           .catch(err=>{
             authError.textContent=err.message || "Sign-in failed.";
           });
       }
+    });
+
+    resendVerifyBtn.addEventListener("click", () => {
+      const user = auth.currentUser;
+      if (!user) {
+        authError.textContent = "You need to be signed in first.";
+        return;
+      }
+      const usesPassword = user.providerData.some(p => p.providerId === "password");
+      if (!usesPassword) {
+        authError.textContent = "Only email/password accounts need verification.";
+        return;
+      }
+      user.sendEmailVerification()
+        .then(() => {
+          authError.textContent = "Verification email resent to " + (user.email || "your address") + ".";
+        })
+        .catch((err) => {
+          console.error("Resend verification error:", err);
+          authError.textContent = err.message || "Could not resend verification email.";
+        });
     });
 
     logoutBtn.addEventListener("click",()=>{ resetCaptcha(); auth.signOut(); });
@@ -525,9 +572,17 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
         authError.textContent="Please complete the reCAPTCHA to continue.";
         return false;
       }
-      if(!auth.currentUser){
+      const user = auth.currentUser;
+      if(!user){
         authOverlay.style.display="flex";
         authError.textContent="Please sign in to use the player.";
+        return false;
+      }
+      const usesPassword = user.providerData.some(p => p.providerId === "password");
+      if (usesPassword && !user.emailVerified) {
+        authOverlay.style.display="flex";
+        authError.textContent = "Please verify your email first. Check your inbox for a verification link.";
+        resendVerifyBtn.style.display = "inline-flex";
         return false;
       }
       return true;
@@ -535,14 +590,26 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
 
     auth.onAuthStateChanged(user=>{
       if(user){
-        welcomeLabel.textContent = "Welcome, " + getDisplayName(user) + "!";
-        logoutBtn.style.display="inline-flex";
-        authOverlay.style.display="none";
+        const usesPassword = user.providerData.some(p => p.providerId === "password");
+        if (usesPassword && !user.emailVerified) {
+          welcomeLabel.textContent = "Verify your email to continue";
+          logoutBtn.style.display="inline-flex";
+          authOverlay.style.display="flex";
+          authError.textContent = "We emailed a verification link to " + (user.email || "your address") + ". Click it, then log in again.";
+          resendVerifyBtn.style.display = "inline-flex";
+        } else {
+          welcomeLabel.textContent = "Welcome, " + getDisplayName(user) + "!";
+          logoutBtn.style.display="inline-flex";
+          authOverlay.style.display="none";
+          authError.textContent = "";
+          resendVerifyBtn.style.display = "none";
+        }
       }else{
         welcomeLabel.textContent="Welcome, guest";
         logoutBtn.style.display="none";
         authOverlay.style.display="flex";
         resetCaptcha();
+        resendVerifyBtn.style.display = "none";
       }
       renderLibrary();
     });
@@ -657,7 +724,7 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
         return false;
       }
       if(typeof YT === "undefined" || typeof YT.Player !== "function"){
-        alert("The YouTube player script did not load. Make sure youtube.com works in this browser and that no extensions, DNS filters, or network rules are blocking YouTube.");
+        alert("The YouTube player script did not load. Make sure youtube.com works and nothing is blocking it.");
         return false;
       }
       if(!ytPlayer){
@@ -850,8 +917,6 @@ YouTube: ${url}`;
       librarySubtitle.textContent="You have "+list.length+" saved tracks.";
       list.forEach((t,i)=>libraryGrid.appendChild(makeCard(t,i,"library")));
     }
-
-    function getCurrentLibrary(){ return loadLibrary(); }
 
     function saveCurrentTrack(){
       if(!requireAuth()) return;

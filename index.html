@@ -1373,11 +1373,18 @@
         playToggleBtn.textContent = "⏸";
         startTimeTimer();
       } else {
+        // YouTube video
+        const vid = track.videoId || "";
+        const validId = /^[A-Za-z0-9_-]{11}$/.test(vid);
+        if (!validId) {
+          alert("This track doesn't have a valid YouTube video id, so only the local MP3 (if any) can be used.");
+          return;
+        }
         if (!player) {
-          createPlayer(track.videoId);
-          if (!player) return;
+          createPlayer(vid);
+          if (!player || typeof player.loadVideoById !== "function") return;
         } else {
-          player.loadVideoById(track.videoId);
+          player.loadVideoById(vid);
         }
         playToggleBtn.textContent = "⏸";
         startTimeTimer();
@@ -1406,8 +1413,9 @@
           clearTimeTimer();
         }
       } else {
-        if (!player) {
-          playFromIndex(0);
+        if (!player || typeof player.getPlayerState !== "function") {
+          // try to start first track or current track
+          playFromIndex(currentIndex >= 0 ? currentIndex : 0);
           return;
         }
         const state = player.getPlayerState();

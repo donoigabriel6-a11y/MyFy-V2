@@ -690,7 +690,10 @@
       </div>
 
       <div class="auth-form" id="authForm">
-        <button type="button" class="pill-btn pill-btn--ghost" id="googleLoginBtn">Continue with Google</button>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:4px;">
+          <button type="button" class="pill-btn pill-btn--ghost" id="googleLoginBtn">Continue with Google</button>
+          <button type="button" class="pill-btn pill-btn--ghost" id="githubLoginBtn">Continue with GitHub</button>
+        </div>
         <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-secondary);margin:4px 0 2px;">
           <span style="flex:1;height:1px;background:#333;"></span>
           <span>or</span>
@@ -927,6 +930,7 @@
     const authError = document.getElementById("authError");
     const authSubmitBtn = document.getElementById("authSubmitBtn");
     const googleLoginBtn = document.getElementById("googleLoginBtn");
+    const githubLoginBtn = document.getElementById("githubLoginBtn");
     const welcomeLabel = document.getElementById("welcomeLabel");
     const logoutBtn = document.getElementById("logoutBtn");
 
@@ -1015,6 +1019,22 @@
           console.error("Google sign-in error:", err);
           authError.textContent = err.message || "Google sign-in failed.";
         });
+    });
+
+    githubLoginBtn.addEventListener("click", () => {
+      const provider = new firebase.auth.GithubAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(() => {
+          authError.textContent = "";
+          authOverlay.style.display = "none";
+        })
+        .catch((err) => {
+          console.error("GitHub sign-in error:", err);
+          authError.textContent = err.message || "GitHub sign-in failed.";
+        });
+    });
+
+;
     });
       } else {
         auth.signInWithEmailAndPassword(email, password)

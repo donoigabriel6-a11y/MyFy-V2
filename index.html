@@ -584,13 +584,7 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
     let progressTimer = null;
     const audioPlayer = new Audio();
     let ytPlayer = null;
-    let ytReady = false;
     let videoVisible = false;
-
-    function onYouTubeIframeAPIReady(){
-      ytReady = true;
-    }
-    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
 
     function formatTime(sec){
       if(!sec||!isFinite(sec)) return "0:00";
@@ -627,12 +621,12 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
     });
 
     function ensureYtPlayer(videoId){
-      if(!ytReady){
-        alert("YouTube player is still loading or blocked. Try again or disable ad blockers.");
-        return false;
-      }
       if(!videoId || !/^[a-zA-Z0-9_-]{11}$/.test(videoId)){
         alert("This track does not have a valid YouTube video id.");
+        return false;
+      }
+      if(typeof YT === "undefined" || typeof YT.Player !== "function"){
+        alert("The YouTube player script did not load. Make sure youtube.com works in this browser and that no extensions, DNS filters, or network rules are blocking YouTube.");
         return false;
       }
       if(!ytPlayer){

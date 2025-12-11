@@ -12,6 +12,7 @@
   <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
   <style>
     :root {
@@ -215,6 +216,9 @@
           <span>or</span>
           <span style="flex:1;height:1px;background:#333;"></span>
         </div>
+        <div style="margin:6px 0;">
+          <div class="g-recaptcha" data-sitekey="6LfLlycsAAAAAEdkFenwNYtEMjva4rSvyUNJLJOF" data-callback="onCaptchaSuccess"></div>
+        </div>
         <label>Email</label>
         <input type="text" id="authEmail" placeholder="you@example.com" />
         <label>Password</label>
@@ -406,6 +410,7 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
 
     // ---- Auth ----
     let authMode = "login"; // or "signup"
+    let captchaVerified = false;
 
     function getDisplayName(user){
       if(!user) return "guest";
@@ -443,8 +448,24 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
       authSubmit.textContent="Create account";
       authError.textContent="";
     });
+    function onCaptchaSuccess() {
+      captchaVerified = true;
+      authError.textContent = "";
+    }
+    function resetCaptcha() {
+      captchaVerified = false;
+      if (typeof grecaptcha !== "undefined" && grecaptcha.reset) {
+        grecaptcha.reset();
+      }
+    }
+    window.onCaptchaSuccess = onCaptchaSuccess;
+
 
     function signInWithProvider(provider){
+      if (!captchaVerified) {
+        authError.textContent = "Please complete the reCAPTCHA first.";
+        return;
+      }
       auth.signInWithPopup(provider)
         .then(()=>{
           authError.textContent="";
@@ -463,6 +484,10 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
     });
 
     authSubmit.addEventListener("click",()=>{
+      if (!captchaVerified) {
+        authError.textContent = "Please complete the reCAPTCHA first.";
+        return;
+      }
       const email = authEmail.value.trim();
       const pass  = authPassword.value.trim();
       if(!email || !pass){
@@ -492,9 +517,14 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
       }
     });
 
-    logoutBtn.addEventListener("click",()=>auth.signOut());
+    logoutBtn.addEventListener("click",()=>{ resetCaptcha(); auth.signOut(); });
 
     function requireAuth(){
+      if (!captchaVerified) {
+        authOverlay.style.display="flex";
+        authError.textContent="Please complete the reCAPTCHA to continue.";
+        return false;
+      }
       if(!auth.currentUser){
         authOverlay.style.display="flex";
         authError.textContent="Please sign in to use the player.";
@@ -512,6 +542,7 @@ Pick a track and we’ll show safe, non‑copyright info here plus a link to You
         welcomeLabel.textContent="Welcome, guest";
         logoutBtn.style.display="none";
         authOverlay.style.display="flex";
+        resetCaptcha();
       }
       renderLibrary();
     });

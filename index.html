@@ -690,6 +690,12 @@
       </div>
 
       <div class="auth-form" id="authForm">
+        <button type="button" class="pill-btn pill-btn--ghost" id="googleLoginBtn">Continue with Google</button>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-secondary);margin:4px 0 2px;">
+          <span style="flex:1;height:1px;background:#333;"></span>
+          <span>or</span>
+          <span style="flex:1;height:1px;background:#333;"></span>
+        </div>
         <label>Email</label>
         <input type="text" id="authUsername" placeholder="you@example.com" />
         <label>Password</label>
@@ -920,6 +926,7 @@
     const authPassword = document.getElementById("authPassword");
     const authError = document.getElementById("authError");
     const authSubmitBtn = document.getElementById("authSubmitBtn");
+    const googleLoginBtn = document.getElementById("googleLoginBtn");
     const welcomeLabel = document.getElementById("welcomeLabel");
     const logoutBtn = document.getElementById("logoutBtn");
 
@@ -996,6 +1003,19 @@
           .catch((err) => {
             authError.textContent = err.message || "Error creating account.";
           });
+
+    googleLoginBtn.addEventListener("click", () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(() => {
+          authError.textContent = "";
+          authOverlay.style.display = "none";
+        })
+        .catch((err) => {
+          console.error("Google sign-in error:", err);
+          authError.textContent = err.message || "Google sign-in failed.";
+        });
+    });
       } else {
         auth.signInWithEmailAndPassword(email, password)
           .then(() => {

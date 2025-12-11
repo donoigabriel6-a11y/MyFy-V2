@@ -1084,7 +1084,6 @@
     });
 
     // ========= PLAYER & STATE =========
-    let ytApiReady = false;
     let player = null;           // YouTube player
     let audioPlayer = new Audio(); // local MP3 player
     let currentSourceType = "youtube"; // "youtube" or "local"
@@ -1175,6 +1174,10 @@
     });
 
     function createPlayer(videoId) {
+      if (typeof YT === "undefined" || typeof YT.Player === "undefined") {
+        alert("YouTube player could not load. It may be blocked by an extension or network filter. Try disabling ad blockers and reloading the page.");
+        return;
+      }
       player = new YT.Player("ytPlayer", {
         videoId,
         playerVars: {
@@ -1209,10 +1212,6 @@
         }
       });
     }
-
-    window.onYouTubeIframeAPIReady = function () {
-      ytApiReady = true;
-    };
 
     // ========= RENDER HELPERS =========
     function createTrackCard(track, index, listType) {
@@ -1374,12 +1373,9 @@
         playToggleBtn.textContent = "⏸";
         startTimeTimer();
       } else {
-        if (!ytApiReady) {
-          alert("YouTube API is still loading. Try again in a second.");
-          return;
-        }
         if (!player) {
           createPlayer(track.videoId);
+          if (!player) return;
         } else {
           player.loadVideoById(track.videoId);
         }

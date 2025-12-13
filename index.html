@@ -229,6 +229,18 @@
         <div class="auth-error" id="authError"></div>
         <button type="button" class="pill solid" id="authSubmit">Continue</button>
         <button type="button" class="pill" id="resendVerifyBtn" style="display:none;margin-top:4px;">Resend verification email</button>
+        <div style="margin-top:8px;border-top:1px solid #333;padding-top:6px;font-size:11px;color:var(--text-secondary);">
+          Or sign up with your phone number
+        </div>
+        <label>Phone (with country code)</label>
+        <input type="tel" id="authPhone" placeholder="+1 555 123 4567" />
+        <div style="display:flex;gap:6px;margin-top:4px;align-items:center;">
+          <button type="button" class="pill" id="sendPhoneCodeBtn">Send SMS code</button>
+          <input type="text" id="authPhoneCode" placeholder="SMS code" style="flex:1;" />
+          <button type="button" class="pill" id="verifyPhoneCodeBtn">Verify code</button>
+        </div>
+        <div class="auth-error" id="phoneInfo" style="min-height:16px;"></div>
+        <div id="phoneRecaptcha" style="margin-top:4px;"></div>
       </div>
     </div>
   </div>
@@ -412,10 +424,17 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
     const authError = document.getElementById("authError");
     const authSubmit = document.getElementById("authSubmit");
     const resendVerifyBtn = document.getElementById("resendVerifyBtn");
+    const authPhone = document.getElementById("authPhone");
+    const authPhoneCode = document.getElementById("authPhoneCode");
+    const sendPhoneCodeBtn = document.getElementById("sendPhoneCodeBtn");
+    const verifyPhoneCodeBtn = document.getElementById("verifyPhoneCodeBtn");
+    const phoneInfo = document.getElementById("phoneInfo");
 
     // ---- Auth / reCAPTCHA ----
     let authMode = "login"; // or "signup"
     let captchaVerified = false;
+    let phoneRecaptchaVerifier = null;
+    let phoneConfirmationResult = null;
 
     function onCaptchaSuccess() {
       captchaVerified = true;
@@ -428,6 +447,67 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
       }
     }
     window.onCaptchaSuccess = onCaptchaSuccess;
+
+    function initPhoneRecaptcha() {
+      if (!phoneRecaptchaVerifier) {
+        phoneRecaptchaVerifier = new firebase.auth.RecaptchaVerifier("phoneRecaptcha", {
+          size: "invisible",
+          callback: function() {
+            console.log("Phone reCAPTCHA solved.");
+          }
+        });
+        phoneRecaptchaVerifier.render().catch(function(err){console.error(err);});
+      }
+    }
+
+    sendPhoneCodeBtn.addEventListener("click", function() {
+      if (!captchaVerified) {
+        authError.textContent = "Please complete the reCAPTCHA first.";
+        return;
+      }
+      const phone = authPhone.value.trim();
+      if (!phone) {
+        authError.textContent = "Enter your phone number (with country code).";
+        return;
+      }
+      phoneInfo.textContent = "";
+      authError.textContent = "Sending SMS code...";
+      initPhoneRecaptcha();
+      auth.signInWithPhoneNumber(phone, phoneRecaptchaVerifier)
+        .then(function(confirmationResult) {
+          phoneConfirmationResult = confirmationResult;
+          authError.textContent = "";
+          phoneInfo.textContent = "SMS code sent to " + phone + ". Enter the code and click Verify.";
+        })
+        .catch(function(err) {
+          console.error("sendPhoneCode error:", err);
+          authError.textContent = err.message || "Could not send SMS code.";
+        });
+    });
+
+    verifyPhoneCodeBtn.addEventListener("click", function() {
+      if (!phoneConfirmationResult) {
+        authError.textContent = "Send the SMS code first.";
+        return;
+      }
+      const code = authPhoneCode.value.trim();
+      if (!code) {
+        authError.textContent = "Enter the SMS code you received.";
+        return;
+      }
+      authError.textContent = "Verifying code...";
+      phoneConfirmationResult.confirm(code)
+        .then(function(result) {
+          const user = result.user;
+          phoneInfo.textContent = "Phone number verified. You are now signed in.";
+          authError.textContent = "";
+          authOverlay.style.display = "none";
+        })
+        .catch(function(err) {
+          console.error("verifyPhoneCode error:", err);
+          authError.textContent = err.message || "Code verification failed.";
+        });
+    });
 
     function getDisplayName(user){
       if(!user) return "guest";

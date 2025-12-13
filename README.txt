@@ -6,4 +6,14 @@ My-Fy-V2 is a spotify like platform that is open source and that you can listen 
 {"error":{"code":400,"message":"INVALID_LOGIN_CREDENTIALS","errors":[{"message":"INVALID_LOGIN_CREDENTIALS","domain":"global","reason":"invalid"}]}}
 "This error is linked to firebase api. It means that the account you are trying to sign in is probably, Account not valid, Wrong password, Account deleted by administraitor. 
 
+#Sign in error 2
+
+••••••••
+{"error":{"code":400,"message":"BILLING_NOT_ENABLED","errors":[{"message":"BILLING_NOT_ENABLED","domain":"global","reason":"invalid"}]}}
+This error typically means that billing is not enabled and need to be. If you incounter this error please contact myfyoffical@yahoo.com .
+ 
+
+                                     
+> [!NOTE]
+> If you incounter any of these errors please email myfyoffical@yahoo.com`.
 

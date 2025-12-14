@@ -1,4 +1,4 @@
-![Artboard][Logo]
+![Artboard][MyFyLogo]
 
 # MyFy
 

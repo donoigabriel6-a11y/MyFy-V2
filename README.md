@@ -14,10 +14,9 @@ My-Fy-V2 is a spotify like platform that is open source and that you can listen 
 
 ••••••••
 {"error":{"code":400,"message":"BILLING_NOT_ENABLED","errors":[{"message":"BILLING_NOT_ENABLED","domain":"global","reason":"invalid"}]}}
-This error typically means that billing is not enabled and need to be. If you incounter this error please contact myfyoffical@yahoo.com .
+This error typically means that billing is not enabled and need to be.
  
-
-                                     
+# Support                             
 > [!NOTE]
 > If you incounter any of these errors please email myfyoffical@yahoo.com`.
 

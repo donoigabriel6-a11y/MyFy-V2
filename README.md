@@ -19,5 +19,5 @@ This error typically means that billing is not enabled and need to be.
 # Support                             
 > [!NOTE]
 > If you incounter any of these errors please email myfyoffical@yahoo.com`.
-
+## or just put them in the issues tab on this repo
 

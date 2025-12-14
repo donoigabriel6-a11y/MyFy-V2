@@ -210,6 +210,7 @@
         <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:4px;">
           <button type="button" class="pill" id="googleBtn">Continue with Google</button>
           <button type="button" class="pill" id="githubBtn">Continue with GitHub</button>
+          <button type="button" class="pill" id="yahooBtn">Continue with Yahoo</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-secondary);margin:4px 0 2px;">
           <span style="flex:1;height:1px;background:#333;"></span>
@@ -228,6 +229,7 @@
         <input type="password" id="authPassword" placeholder="••••••••" />
         <div class="auth-error" id="authError"></div>
         <button type="button" class="pill solid" id="authSubmit">Continue</button>
+        <button type="button" class="pill" id="resetPasswordBtn" style="margin-top:4px;">Send password reset email</button>
         <button type="button" class="pill" id="resendVerifyBtn" style="display:none;margin-top:4px;">Resend verification email</button>
         <div style="margin-top:8px;border-top:1px solid #333;padding-top:6px;font-size:11px;color:var(--text-secondary);">
           Or sign up with your phone number
@@ -419,11 +421,13 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
     const signupTab = document.getElementById("signupTab");
     const googleBtn = document.getElementById("googleBtn");
     const githubBtn = document.getElementById("githubBtn");
+    const yahooBtn = document.getElementById("yahooBtn");
     const authEmail = document.getElementById("authEmail");
     const authPassword = document.getElementById("authPassword");
     const authError = document.getElementById("authError");
     const authSubmit = document.getElementById("authSubmit");
     const resendVerifyBtn = document.getElementById("resendVerifyBtn");
+    const resetPasswordBtn = document.getElementById("resetPasswordBtn");
     const authPhone = document.getElementById("authPhone");
     const authPhoneCode = document.getElementById("authPhoneCode");
     const sendPhoneCodeBtn = document.getElementById("sendPhoneCodeBtn");
@@ -537,6 +541,7 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
       signupTab.classList.remove("active");
       authSubmit.textContent="Log in";
       authError.textContent="";
+      resetPasswordBtn.style.display = "inline-flex";
     });
     signupTab.addEventListener("click",()=>{
       authMode="signup";
@@ -544,6 +549,7 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
       loginTab.classList.remove("active");
       authSubmit.textContent="Create account";
       authError.textContent="";
+      resetPasswordBtn.style.display = "none";
     });
 
     function signInWithProvider(provider){
@@ -566,6 +572,11 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
     });
     githubBtn.addEventListener("click",()=>{
       signInWithProvider(new firebase.auth.GithubAuthProvider());
+    });
+
+    yahooBtn.addEventListener("click",()=>{
+      const yahooProvider = new firebase.auth.OAuthProvider("yahoo.com");
+      signInWithProvider(yahooProvider);
     });
 
     authSubmit.addEventListener("click",()=>{
@@ -599,6 +610,7 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
             signupTab.classList.remove("active");
             authSubmit.textContent="Log in";
             authPassword.value = "";
+            resetPasswordBtn.style.display = "inline-flex";
           })
           .catch(err=>{
             authError.textContent=err.message || "Could not create account.";
@@ -642,6 +654,25 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
           console.error("Resend verification error:", err);
           authError.textContent = err.message || "Could not resend verification email.";
         });
+    resetPasswordBtn.addEventListener("click", () => {
+      if (!captchaVerified) {
+        authError.textContent = "Please complete the reCAPTCHA first.";
+        return;
+      }
+      const email = authEmail.value.trim();
+      if (!email) {
+        authError.textContent = "Enter your email above, then click reset.";
+        return;
+      }
+      auth.sendPasswordResetEmail(email)
+        .then(() => {
+          authError.textContent = "Password reset link sent to " + email + ". Check your inbox.";
+        })
+        .catch(err => {
+          console.error("Password reset error:", err);
+          authError.textContent = err.message || "Could not send reset email.";
+        });
+    });
     });
 
     logoutBtn.addEventListener("click",()=>{ resetCaptcha(); auth.signOut(); });

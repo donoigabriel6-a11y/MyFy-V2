@@ -1,4 +1,6 @@
+![Artboard][NuggetLogo]
 # MyFy
+
 
 My-Fy-V2 is a spotify like platform that is open source and that you can listen to music,videos and more. This is powered by the Youtube API and the Google Firebase API for login and streaming. This was made by GRFN, Now have fun!
 

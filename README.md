@@ -1,4 +1,4 @@
-![Artboard][NuggetLogo]
+![Artboard][Logo]
 # MyFy
 
 

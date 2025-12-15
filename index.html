@@ -426,8 +426,8 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
     const authPassword = document.getElementById("authPassword");
     const authError = document.getElementById("authError");
     const authSubmit = document.getElementById("authSubmit");
-    const resendVerifyBtn = document.getElementById("resendVerifyBtn");
     const resetPasswordBtn = document.getElementById("resetPasswordBtn");
+    const resendVerifyBtn = document.getElementById("resendVerifyBtn");
     const authPhone = document.getElementById("authPhone");
     const authPhoneCode = document.getElementById("authPhoneCode");
     const sendPhoneCodeBtn = document.getElementById("sendPhoneCodeBtn");
@@ -610,7 +610,6 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
             signupTab.classList.remove("active");
             authSubmit.textContent="Log in";
             authPassword.value = "";
-            resetPasswordBtn.style.display = "inline-flex";
           })
           .catch(err=>{
             authError.textContent=err.message || "Could not create account.";
@@ -654,6 +653,8 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
           console.error("Resend verification error:", err);
           authError.textContent = err.message || "Could not resend verification email.";
         });
+    });
+
     resetPasswordBtn.addEventListener("click", () => {
       if (!captchaVerified) {
         authError.textContent = "Please complete the reCAPTCHA first.";
@@ -668,11 +669,10 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
         .then(() => {
           authError.textContent = "Password reset link sent to " + email + ". Check your inbox.";
         })
-        .catch(err => {
+        .catch((err) => {
           console.error("Password reset error:", err);
           authError.textContent = err.message || "Could not send reset email.";
         });
-    });
     });
 
     logoutBtn.addEventListener("click",()=>{ resetCaptcha(); auth.signOut(); });

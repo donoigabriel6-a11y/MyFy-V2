@@ -4,202 +4,321 @@
   <meta charset="UTF-8" />
   <title>MyFy – Music Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- YouTube IFrame Player API -->
   <script src="https://www.youtube.com/iframe_api"></script>
 
-  <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
-  <!-- reCAPTCHA v2 -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
   <style>
     :root {
-      --bg-main: #050505;
-      --bg-elevated: #181818;
-      --bg-hover: #262626;
-      --accent: #ff0000;
-      --accent-soft: #f97316;
+      --bg-main: #000000;
+      --bg-elevated: #121212;
+      --bg-hover: #1f1f1f;
+      --accent: #ff3333;
+      --accent-soft: #ff8c00;
       --text-primary: #ffffff;
-      --text-secondary: #b3b3b3;
-      --border-subtle: #2a2a2a;
+      --text-secondary: #a7a7a7;
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      --font-family: "Inter", system-ui, -apple-system, sans-serif;
     }
-    *{box-sizing:border-box;}
-    body{
-      margin:0;
-      font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:var(--bg-main);
-      color:var(--text-primary);
-      overflow:hidden;
+
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      font-family: var(--font-family);
+      background: var(--bg-main);
+      color: var(--text-primary);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
     }
-    .app{
-      display:grid;
-      grid-template-rows:auto 1fr auto;
-      height:100vh;
-      background:
-        radial-gradient(circle at top left,#ff000020 0,transparent 55%),
-        radial-gradient(circle at bottom right,#f9731620 0,transparent 55%),
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 5px; }
+    ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+    .app {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      height: 100vh;
+      background: 
+        radial-gradient(circle at 0% 0%, rgba(255, 51, 51, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 100% 100%, rgba(255, 140, 0, 0.05) 0%, transparent 40%),
         var(--bg-main);
     }
-    header.top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:10px 18px;
-      background:rgba(0,0,0,0.9);
-      border-bottom:1px solid #000;
-      backdrop-filter:blur(12px);
-      z-index:20;
+
+    header.top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: rgba(0, 0, 0, 0.6);
+      border-bottom: 1px solid var(--border-subtle);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 20;
     }
-    .logo-area{display:flex;align-items:center;gap:8px;}
-    .logo-dot{
-      width:30px;height:30px;border-radius:50%;
-      background:radial-gradient(circle at 30% 30%,#ffb3b3,#ff0000);
-      display:flex;align-items:center;justify-content:center;
-      font-weight:800;font-size:18px;color:#000;
+
+    .logo-area { display: flex; align-items: center; gap: 10px; }
+    
+    .logo-dot {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, #ff0000, #f97316);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 16px; color: #fff;
+      box-shadow: 0 4px 12px rgba(255, 51, 51, 0.4);
     }
-    .brand{font-weight:700;letter-spacing:.08em;font-size:18px;}
-    .nav-tabs{display:flex;gap:6px;background:#111;border-radius:999px;padding:3px;}
-    .nav-tab{
-      border:none;border-radius:999px;padding:6px 14px;
-      font-size:13px;font-weight:500;background:transparent;
-      color:var(--text-secondary);cursor:pointer;
+
+    .brand { font-weight: 800; letter-spacing: 0.5px; font-size: 20px; }
+
+    .nav-tabs {
+      display: flex; gap: 4px; background: #1a1a1a; 
+      border-radius: 999px; padding: 4px;
     }
-    .nav-tab.active{background:#fff;color:#111;}
-    .top-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
-    .welcome{font-size:13px;color:var(--text-secondary);}
-    .pill{
-      border-radius:999px;border:1px solid var(--border-subtle);
-      background:transparent;color:var(--text-secondary);
-      padding:6px 12px;font-size:12px;font-weight:500;
-      cursor:pointer;
+
+    .nav-tab {
+      border: none; border-radius: 999px; padding: 8px 20px;
+      font-size: 14px; font-weight: 600; background: transparent;
+      color: var(--text-secondary); cursor: pointer;
+      transition: all 0.2s ease;
     }
-    .pill.solid{background:var(--accent);border-color:var(--accent);color:#fff;}
-    .search-bar{
-      display:flex;align-items:center;gap:6px;
-      background:#111;border-radius:999px;padding:3px 8px;
-      border:1px solid var(--border-subtle);
+
+    .nav-tab:hover { color: var(--text-primary); }
+    
+    .nav-tab.active {
+      background: #333; color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
-    .search-bar input{
-      border:none;outline:none;background:transparent;color:#fff;
-      font-size:13px;width:200px;
+
+    .top-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: flex-end; }
+    
+    .welcome { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+    
+    .pill {
+      border-radius: 999px; border: 1px solid #444;
+      background: transparent; color: var(--text-primary);
+      padding: 8px 16px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s ease;
     }
-    .search-bar input::placeholder{color:var(--text-secondary);}
-    .layout{
-      display:grid;
-      grid-template-columns:minmax(0,3fr) minmax(260px,1.4fr);
-      gap:16px;
-      padding:14px 18px 18px;
-      overflow:hidden;
+    
+    .pill:hover { background: rgba(255,255,255,0.1); border-color: #666; }
+    
+    .pill.solid {
+      background: var(--text-primary); color: #000; border: none;
     }
+    
+    .pill.solid:hover { background: #e6e6e6; transform: scale(1.02); }
+
+    .search-bar {
+      display: flex; align-items: center; gap: 8px;
+      background: #242424; border-radius: 999px; padding: 4px 6px 4px 16px;
+      border: 1px solid transparent; transition: border 0.2s;
+    }
+    
+    .search-bar:focus-within { border: 1px solid #555; background: #2a2a2a; }
+    
+    .search-bar input {
+      border: none; outline: none; background: transparent; color: #fff;
+      font-size: 14px; width: 220px; font-family: var(--font-family);
+    }
+    
+    .search-bar input::placeholder { color: var(--text-secondary); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 24px;
+      padding: 24px;
+      overflow: hidden;
+    }
+    
     @media(max-width:900px){
-      .layout{grid-template-columns:1fr;grid-template-rows:auto auto;}
+      .layout { grid-template-columns: 1fr; grid-template-rows: auto auto; overflow-y: auto; }
+      .main-pane { overflow: visible !important; }
     }
-    .main-pane{overflow-y:auto;padding-right:4px;}
-    .side-pane{
-      background:rgba(24,24,24,0.95);
-      border-radius:10px;
-      padding:10px 12px;
-      border:1px solid #000;
-      display:flex;flex-direction:column;gap:10px;
-      overflow-y:auto;
+
+    .main-pane { overflow-y: auto; padding-right: 8px; }
+    
+    .side-pane {
+      background: var(--bg-elevated);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex; flex-direction: column; gap: 16px;
+      overflow-y: auto;
     }
-    .hero{margin-bottom:16px;}
-    .hero h1{margin:0 0 4px;font-size:22px;font-weight:800;}
-    .hero p{margin:0;font-size:13px;color:var(--text-secondary);max-width:520px;}
-    .section-header{display:flex;justify-content:space-between;align-items:baseline;margin:6px 0 8px;}
-    .section-header h2{margin:0;font-size:17px;font-weight:700;}
-    .section-header span{font-size:12px;color:var(--text-secondary);}
-    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
-    .tag{font-size:11px;border-radius:999px;border:1px solid var(--border-subtle);padding:3px 9px;background:#111;color:var(--text-secondary);cursor:pointer;}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;padding-bottom:40px;}
-    .card{
-      background:#181818;border-radius:10px;padding:9px;cursor:pointer;position:relative;overflow:hidden;
-      transition:background .12s,transform .12s,box-shadow .12s;
+
+    .hero { margin-bottom: 32px; }
+    .hero h1 { margin: 0 0 8px; font-size: 36px; font-weight: 800; letter-spacing: -1px; }
+    .hero p { margin: 0; font-size: 15px; color: var(--text-secondary); max-width: 600px; line-height: 1.5; }
+
+    .section-header { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 16px; }
+    .section-header h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .section-header span { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .tag {
+      font-size: 13px; font-weight: 500; border-radius: 8px; border: none;
+      padding: 8px 16px; background: rgba(255,255,255,0.08); color: var(--text-primary);
+      cursor: pointer; transition: background 0.2s;
     }
-    .card:hover{background:#262626;transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.6);}
-    .thumb{
-      border-radius:8px;overflow:hidden;aspect-ratio:16/9;
-      background:linear-gradient(135deg,#ff0000,#f97316,#a855f7);
-      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px;margin-bottom:6px;
+    .tag:hover { background: rgba(255,255,255,0.15); }
+
+    .grid {
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+      gap: 20px; padding-bottom: 40px;
     }
-    .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
-    .card-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;}
-    .card-desc{font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .play-fab{
-      position:absolute;right:12px;bottom:12px;width:34px;height:34px;border-radius:50%;
-      background:var(--accent);display:flex;align-items:center;justify-content:center;
-      box-shadow:0 8px 20px rgba(0,0,0,.7);opacity:0;transform:translateY(8px);transition:opacity .12s,transform .12s;
+
+    .card {
+      background: #181818; border-radius: 12px; padding: 16px; cursor: pointer;
+      position: relative; transition: background 0.3s ease, transform 0.3s ease;
     }
-    .card:hover .play-fab{opacity:1;transform:translateY(0);}
-    .play-fab span{font-size:15px;}
-    .lyrics-header{display:flex;justify-content:space-between;align-items:center;}
-    .lyrics-header h3{margin:0;font-size:15px;font-weight:600;}
-    .lyrics-meta{font-size:12px;color:var(--text-secondary);}
-    .badge{font-size:11px;border-radius:999px;padding:2px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);}
-    .lyrics-body{
-      margin-top:6px;padding:8px 10px;border-radius:8px;background:#050505;
-      font-size:13px;line-height:1.5;max-height:280px;overflow-y:auto;white-space:pre-line;
+    
+    .card:hover { background: #282828; }
+
+    .thumb {
+      border-radius: 8px; overflow: hidden; aspect-ratio: 1 / 1;
+      background: #282828;
+      display: flex; align-items: center; justify-content: center; color: #fff;
+      font-weight: 700; font-size: 24px; margin-bottom: 16px;
+      position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     }
-    footer.player{
-      display:grid;grid-template-columns:260px 1fr 220px;align-items:center;
-      gap:12px;padding:8px 16px;background:#181818;border-top:1px solid #000;
+    
+    .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease; }
+    .card:hover .thumb img { transform: scale(1.05); }
+
+    .card-title { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+    .card-desc { font-size: 13px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .play-fab {
+      position: absolute; right: 8px; bottom: 8px; width: 44px; height: 44px; border-radius: 50%;
+      background: var(--accent); display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5); opacity: 0; transform: translateY(10px);
+      transition: all 0.3s ease; z-index: 2;
     }
+    
+    .card:hover .play-fab { opacity: 1; transform: translateY(0); }
+    .play-fab:hover { transform: scale(1.08) translateY(0) !important; background: #ff4d4d; }
+    .play-fab span { font-size: 16px; margin-left: 2px; color: #fff; }
+
+    .lyrics-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .lyrics-header h3 { margin: 0 0 4px; font-size: 18px; font-weight: 700; }
+    .lyrics-meta { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+    .badge { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 4px; padding: 4px 8px; background: rgba(255,255,255,0.1); }
+
+    .lyrics-body {
+      padding: 16px; border-radius: 8px; background: rgba(0,0,0,0.3);
+      font-size: 14px; font-weight: 500; color: #d1d1d1; line-height: 1.6;
+      max-height: calc(100vh - 280px); overflow-y: auto; white-space: pre-line;
+    }
+
+    footer.player {
+      display: grid; grid-template-columns: 300px 1fr 300px; align-items: center;
+      gap: 16px; padding: 16px 24px; background: var(--bg-main); border-top: 1px solid var(--border-subtle);
+    }
+    
     @media(max-width:900px){
-      footer.player{grid-template-columns:1fr;grid-auto-rows:auto;}
+      footer.player { grid-template-columns: 1fr; grid-auto-rows: auto; gap: 20px; padding: 20px; }
+      .player-right { justify-content: center !important; }
     }
-    .player-left{display:flex;align-items:center;gap:8px;min-width:0;}
-    .player-thumb{width:48px;height:48px;border-radius:6px;background:#111;overflow:hidden;}
-    .player-thumb img{width:100%;height:100%;object-fit:cover;}
-    .player-meta{min-width:0;}
-    .player-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .player-artist{font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .player-center{display:flex;flex-direction:column;align-items:center;gap:6px;}
-    .controls{display:flex;align-items:center;gap:12px;}
-    .ctrl{cursor:pointer;color:var(--text-secondary);font-size:18px;}
-    .ctrl.play{
-      width:30px;height:30px;border-radius:999px;background:var(--accent);
-      display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;
-      box-shadow:0 6px 18px rgba(0,0,0,.6);
+
+    .player-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .player-thumb { width: 56px; height: 56px; border-radius: 8px; background: #282828; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    .player-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .player-meta { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .player-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .player-artist { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .player-center { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .controls { display: flex; align-items: center; gap: 20px; }
+    
+    .ctrl { cursor: pointer; color: var(--text-secondary); font-size: 16px; transition: color 0.2s, transform 0.2s; display: flex; align-items: center; justify-content: center; }
+    .ctrl:hover { color: #fff; }
+    .ctrl:active { transform: scale(0.9); }
+    
+    .ctrl.play {
+      width: 36px; height: 36px; border-radius: 50%; background: #fff;
+      color: #000; font-size: 14px; padding-left: 2px; transition: transform 0.2s;
     }
-    .progress-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-secondary);width:100%;max-width:520px;}
-    .bar{flex:1;height:4px;border-radius:999px;background:#404040;position:relative;overflow:hidden;cursor:pointer;}
-    .bar-fill{position:absolute;inset:0;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-soft));}
-    .player-right{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--text-secondary);}
-    .bar.small{width:90px;}
-    .auth-overlay{
-      position:fixed;inset:0;background:rgba(0,0,0,.9);
-      display:flex;align-items:center;justify-content:center;z-index:40;
+    .ctrl.play:hover { transform: scale(1.05); color: #000; }
+
+    .progress-row { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 500; color: var(--text-secondary); width: 100%; max-width: 600px; }
+    
+    .bar {
+      flex: 1; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.1);
+      position: relative; overflow: hidden; cursor: pointer; transition: height 0.2s;
     }
-    .auth-card{
-      width:340px;max-width:90vw;background:#111;border-radius:14px;padding:18px;border:1px solid #333;
-      box-shadow:0 18px 45px rgba(0,0,0,.85);
+    .bar:hover { height: 6px; }
+    .bar-fill {
+      position: absolute; inset: 0; width: 0%; border-radius: 999px;
+      background: #fff; transition: width 0.1s linear;
     }
-    .auth-title{font-size:20px;font-weight:700;margin-bottom:4px;}
-    .auth-sub{font-size:13px;color:var(--text-secondary);margin-bottom:10px;}
-    .auth-switch{display:flex;gap:6px;background:#181818;border-radius:999px;padding:3px;margin-bottom:8px;}
-    .auth-switch button{flex:1;border:none;border-radius:999px;padding:5px;font-size:12px;cursor:pointer;background:transparent;color:var(--text-secondary);}
-    .auth-switch button.active{background:#fff;color:#000;}
-    .auth-form{display:flex;flex-direction:column;gap:7px;}
-    .auth-form label{font-size:12px;color:var(--text-secondary);}
-    .auth-form input{border-radius:8px;border:1px solid #333;background:#181818;color:#fff;font-size:13px;padding:7px 9px;outline:none;}
-    .auth-form input:focus{border-color:var(--accent-soft);}
-    .auth-error{font-size:12px;color:#f97373;min-height:16px;}
-    #ytPlayerWrapper{
-      position:fixed;bottom:80px;left:20px;width:320px;height:0;opacity:0;pointer-events:none;transition:height .15s,opacity .15s;
+    .bar:hover .bar-fill { background: var(--accent); }
+
+    .player-right { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--text-secondary); }
+    .bar.small { width: 100px; }
+
+    .auth-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
     }
-    #ytPlayerWrapper.show{height:180px;opacity:1;pointer-events:auto;}
+
+    .auth-card {
+      width: 380px; max-width: 90vw; background: var(--bg-elevated); border-radius: 16px;
+      padding: 32px 28px; border: 1px solid var(--border-subtle);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    }
+
+    .auth-title { font-size: 26px; font-weight: 800; margin-bottom: 8px; text-align: center; letter-spacing: -0.5px; }
+    .auth-sub { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; text-align: center; }
+
+    .auth-switch {
+      display: flex; gap: 4px; background: #000; border-radius: 8px; padding: 4px; margin-bottom: 20px;
+    }
+    
+    .auth-switch button {
+      flex: 1; border: none; border-radius: 6px; padding: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; background: transparent; color: var(--text-secondary); transition: all 0.2s;
+    }
+    .auth-switch button.active { background: #333; color: #fff; }
+
+    .auth-form { display: flex; flex-direction: column; gap: 12px; }
+    .auth-form label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: -6px; }
+    
+    .auth-form input {
+      border-radius: 8px; border: 1px solid #333; background: #0a0a0a; color: #fff;
+      font-size: 14px; padding: 12px; outline: none; transition: border 0.2s, background 0.2s;
+    }
+    .auth-form input:focus { border-color: #777; background: #111; }
+
+    .auth-error { font-size: 13px; font-weight: 500; color: #ff4d4d; min-height: 18px; text-align: center; }
+    
+    .social-btn { width: 100%; justify-content: center; padding: 10px; margin-bottom: 4px; }
+    .divider { display: flex; align-items: center; gap: 12px; font-size: 12px; font-weight: 600; color: #555; margin: 12px 0; text-transform: uppercase; }
+    .divider span.line { flex: 1; height: 1px; background: #333; }
+
+    #ytPlayerWrapper {
+      position: fixed; bottom: 100px; right: 30px; width: 320px; height: 0; 
+      opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      z-index: 50;
+    }
+    
+    #ytPlayerWrapper.show { height: 180px; opacity: 1; pointer-events: auto; bottom: 110px; }
   </style>
 </head>
 <body>
-  <!-- Auth overlay -->
   <div class="auth-overlay" id="authOverlay">
     <div class="auth-card">
-      <div class="auth-title">Sign in to MyFy</div>
-      <div class="auth-sub">Use Google, GitHub, or email to save your library.</div>
+      <div class="auth-title">Log in to MyFy</div>
+      <div class="auth-sub">Save your favorite tracks and build your library.</div>
 
       <div class="auth-switch">
         <button id="loginTab" class="active">Log in</button>
@@ -207,41 +326,48 @@
       </div>
 
       <div class="auth-form" id="authForm">
-        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:4px;">
-          <button type="button" class="pill" id="googleBtn">Continue with Google</button>
-          <button type="button" class="pill" id="githubBtn">Continue with GitHub</button>
-          <button type="button" class="pill" id="yahooBtn">Continue with Yahoo</button>
+        <button type="button" class="pill social-btn" id="googleBtn">Continue with Google</button>
+        <button type="button" class="pill social-btn" id="githubBtn">Continue with GitHub</button>
+        <button type="button" class="pill social-btn" id="yahooBtn">Continue with Yahoo</button>
+        
+        <div class="divider">
+          <span class="line"></span><span>or</span><span class="line"></span>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-secondary);margin:4px 0 2px;">
-          <span style="flex:1;height:1px;background:#333;"></span>
-          <span>or</span>
-          <span style="flex:1;height:1px;background:#333;"></span>
-        </div>
-        <div style="margin:6px 0;">
-          <!-- Replace YOUR_RECAPTCHA_SITE_KEY_HERE with your real v2 site key -->
+        
+        <div style="display:flex; justify-content:center; margin-bottom: 8px;">
           <div class="g-recaptcha"
                data-sitekey="6Ler4icsAAAAAOa9mOF-wxVRLBIaVGQiN5LL_BTA"
-               data-callback="onCaptchaSuccess"></div>
+               data-callback="onCaptchaSuccess"
+               data-theme="dark"></div>
         </div>
-        <label>Email</label>
-        <input type="text" id="authEmail" placeholder="you@example.com" />
+        
+        <label>Email address</label>
+        <input type="text" id="authEmail" placeholder="name@domain.com" />
+        
         <label>Password</label>
         <input type="password" id="authPassword" placeholder="••••••••" />
+        
         <div class="auth-error" id="authError"></div>
-        <button type="button" class="pill solid" id="authSubmit">Continue</button>
-        <button type="button" class="pill" id="resetPasswordBtn" style="margin-top:4px;">Send password reset email</button>
-        <button type="button" class="pill" id="resendVerifyBtn" style="display:none;margin-top:4px;">Resend verification email</button>
-        <div style="margin-top:8px;border-top:1px solid #333;padding-top:6px;font-size:11px;color:var(--text-secondary);">
-          Or sign up with your phone number
+        
+        <button type="button" class="pill solid" id="authSubmit" style="padding: 12px; font-size: 15px; margin-top: 4px;">Log In</button>
+        
+        <div style="display:flex; justify-content:center; gap:10px; margin-top:4px;">
+          <button type="button" class="pill" id="resetPasswordBtn" style="border:none; padding:4px;">Forgot password?</button>
+          <button type="button" class="pill" id="resendVerifyBtn" style="display:none; border:none; padding:4px;">Resend verification</button>
         </div>
-        <label>Phone (with country code)</label>
+
+        <div class="divider" style="margin-top: 16px;">
+          <span class="line"></span><span style="font-size:10px;">Phone Sign In</span><span class="line"></span>
+        </div>
+        
+        <label>Phone Number</label>
         <input type="tel" id="authPhone" placeholder="+1 555 123 4567" />
-        <div style="display:flex;gap:6px;margin-top:4px;align-items:center;">
-          <button type="button" class="pill" id="sendPhoneCodeBtn">Send SMS code</button>
-          <input type="text" id="authPhoneCode" placeholder="SMS code" style="flex:1;" />
-          <button type="button" class="pill" id="verifyPhoneCodeBtn">Verify code</button>
+        <div style="display:flex; gap:8px; margin-top:4px; align-items:stretch;">
+          <button type="button" class="pill" id="sendPhoneCodeBtn" style="white-space:nowrap;">Send SMS</button>
+          <input type="text" id="authPhoneCode" placeholder="Code" style="flex:1; padding: 8px;" />
+          <button type="button" class="pill solid" id="verifyPhoneCodeBtn" style="white-space:nowrap;">Verify</button>
         </div>
-        <div class="auth-error" id="phoneInfo" style="min-height:16px;"></div>
+        <div class="auth-error" id="phoneInfo" style="min-height:16px; color: var(--text-secondary);"></div>
         <div id="phoneRecaptcha" style="margin-top:4px;"></div>
       </div>
     </div>
@@ -262,9 +388,9 @@
 
       <div class="top-right">
         <form id="searchForm" class="search-bar" style="display:none;">
-          <span>🔍</span>
-          <input id="searchInput" type="text" placeholder="Search on YouTube…" />
-          <button class="pill solid" type="submit">Search</button>
+          <span style="font-size: 14px; opacity: 0.7;">🔍</span>
+          <input id="searchInput" type="text" placeholder="What do you want to listen to?" />
+          <button class="pill solid" type="submit" style="padding: 4px 12px; font-size:12px;">Search</button>
         </form>
         <span class="welcome" id="welcomeLabel">Welcome, guest</span>
         <button class="pill" id="logoutBtn" style="display:none;">Log out</button>
@@ -275,12 +401,12 @@
       <main class="main-pane">
         <section id="featuredSection">
           <div class="hero">
-            <h1>Featured tracks</h1>
-            <p>Local MP3 files from your repo. Sign in, then click any card to play.</p>
+            <h1>Discover Tracks</h1>
+            <p>Listen to top picks and curated MP3 files directly from the web. Sign in to start saving your favorites.</p>
           </div>
           <div class="section-header">
             <h2>Today’s picks</h2>
-            <span>MP3s bundled with the site.</span>
+            <span>Bundled MP3s</span>
           </div>
           <div class="grid" id="featuredGrid"></div>
         </section>
@@ -288,26 +414,26 @@
         <section id="searchSection" style="display:none;">
           <div class="hero">
             <h1>Search YouTube</h1>
-            <p>Use the YouTube API to play full tracks in the official player.</p>
+            <p>Access the entire YouTube catalog to play full tracks in the official player natively integrated here.</p>
             <div class="tags">
-              <button class="tag">lofi hip hop</button>
-              <button class="tag">phonk</button>
-              <button class="tag">gaming music</button>
+              <button class="tag">Lofi Hip Hop</button>
+              <button class="tag">Phonk</button>
+              <button class="tag">Gaming Music</button>
               <button class="tag">d4vd</button>
-              <button class="tag">crab rave</button>
+              <button class="tag">Crab Rave</button>
             </div>
           </div>
           <div class="section-header">
             <h2>Results</h2>
-            <span id="resultsSubtitle">Try a search or click a tag.</span>
+            <span id="resultsSubtitle">Try a search or click a tag above.</span>
           </div>
           <div class="grid" id="resultsGrid"></div>
         </section>
 
         <section id="librarySection" style="display:none;">
           <div class="hero">
-            <h1>Your library</h1>
-            <p>Songs you saved while listening. Stored per account in this browser.</p>
+            <h1>Your Library</h1>
+            <p>Songs you saved while listening. Your collection is synced locally to this browser.</p>
           </div>
           <div class="section-header">
             <h2>Saved tracks</h2>
@@ -320,7 +446,7 @@
       <aside class="side-pane">
         <div class="lyrics-header">
           <div>
-            <h3>Lyrics & info</h3>
+            <h3>Now Playing Info</h3>
             <div class="lyrics-meta" id="lyricsMeta">Nothing playing yet.</div>
           </div>
           <span class="badge">beta</span>
@@ -339,12 +465,13 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
           <div class="player-artist" id="playerArtist">Sign in and choose a song</div>
         </div>
       </div>
+      
       <div class="player-center">
         <div class="controls">
           <div class="ctrl" id="prevBtn">⏮</div>
           <div class="ctrl play" id="playBtn">▶</div>
           <div class="ctrl" id="nextBtn" title="Skip forward 30 seconds">⏭</div>
-          <div class="ctrl" id="saveBtn">♡</div>
+          <div class="ctrl" id="saveBtn" style="margin-left: 8px;">♡</div>
         </div>
         <div class="progress-row">
           <span id="timeCurrent">0:00</span>
@@ -352,16 +479,15 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
           <span id="timeTotal">0:00</span>
         </div>
       </div>
+      
       <div class="player-right">
-        <span>🔊</span>
+        <button class="badge" id="toggleVideoBtn" style="cursor:pointer; border:1px solid #444; background:transparent; color:#ccc;">Show Video</button>
+        <span style="margin-left: 8px;">🔊</span>
         <div class="bar small" id="volumeBar"><div class="bar-fill" id="volumeFill" style="width:70%;"></div></div>
-        <button class="pill" id="toggleVideoBtn">Show video</button>
-        <span class="badge">YouTube + local MP3</span>
       </div>
     </footer>
   </div>
 
-  <!-- Hidden YouTube player -->
   <div id="ytPlayerWrapper">
     <div id="ytPlayer"></div>
   </div>
@@ -540,6 +666,7 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
       loginTab.classList.add("active");
       signupTab.classList.remove("active");
       authSubmit.textContent="Log in";
+      document.querySelector(".auth-title").textContent="Log in to MyFy";
       authError.textContent="";
       resetPasswordBtn.style.display = "inline-flex";
     });
@@ -548,6 +675,7 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
       signupTab.classList.add("active");
       loginTab.classList.remove("active");
       authSubmit.textContent="Create account";
+      document.querySelector(".auth-title").textContent="Join MyFy";
       authError.textContent="";
       resetPasswordBtn.style.display = "none";
     });
@@ -609,6 +737,7 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
             loginTab.classList.add("active");
             signupTab.classList.remove("active");
             authSubmit.textContent="Log in";
+            document.querySelector(".auth-title").textContent="Log in to MyFy";
             authPassword.value = "";
           })
           .catch(err=>{
@@ -869,7 +998,7 @@ Pick a track and we’ll show safe, non-copyright info here plus a link to YouTu
       if(track.thumb){
         playerThumb.innerHTML='<img src="'+track.thumb+'" alt="">';
       }else{
-        playerThumb.innerHTML="";
+        playerThumb.innerHTML='<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:24px;">♪</div>';
       }
       const url = track.videoId ? "https://www.youtube.com/watch?v="+track.videoId : "https://www.youtube.com/";
       lyricsMeta.textContent = track.title + " · " + (track.artist || "");
@@ -1011,13 +1140,16 @@ YouTube: ${url}`;
       const desc=document.createElement("div");
       desc.className="card-desc";
       desc.textContent=track.artist || (track.kind==="local"?"Local file":"YouTube");
+      
       const fab=document.createElement("div");
       fab.className="play-fab";
       fab.innerHTML="<span>▶</span>";
+      
       card.appendChild(thumb);
       card.appendChild(title);
       card.appendChild(desc);
       card.appendChild(fab);
+      
       card.addEventListener("click",()=>{
         if(!requireAuth()) return;
         if(listType==="featured"){
@@ -1153,10 +1285,14 @@ YouTube: ${url}`;
       videoVisible=!videoVisible;
       if(videoVisible){
         ytWrapper.classList.add("show");
-        toggleVideoBtn.textContent="Hide video";
+        toggleVideoBtn.textContent="Hide Video";
+        toggleVideoBtn.style.borderColor = "var(--accent)";
+        toggleVideoBtn.style.color = "white";
       }else{
         ytWrapper.classList.remove("show");
-        toggleVideoBtn.textContent="Show video";
+        toggleVideoBtn.textContent="Show Video";
+        toggleVideoBtn.style.borderColor = "#444";
+        toggleVideoBtn.style.color = "#ccc";
       }
     });
 

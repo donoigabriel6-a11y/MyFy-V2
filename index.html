@@ -27,311 +27,258 @@
       --glass: rgba(15, 15, 15, 0.8);
     }
 
-    /* Theme Definitions */
+    /* Theme Variations */
     body.theme-ocean {
-      --bg-main: #051622;
-      --bg-elevated: #1a2e3b;
-      --accent: #0077ff;
-      --accent-soft: #00d4ff;
+      --bg-main: #051622; --bg-elevated: #1a2e3b; --accent: #0077ff; --accent-soft: #00d4ff;
     }
     body.theme-emerald {
-      --bg-main: #061a12;
-      --bg-elevated: #142d24;
-      --accent: #10b981;
-      --accent-soft: #34d399;
+      --bg-main: #061a12; --bg-elevated: #142d24; --accent: #10b981; --accent-soft: #34d399;
     }
     body.theme-sunset {
-      --bg-main: #1a0f0f;
-      --bg-elevated: #2d1b1b;
-      --accent: #f43f5e;
-      --accent-soft: #fb923c;
+      --bg-main: #1a0f0f; --bg-elevated: #2d1b1b; --accent: #f43f5e; --accent-soft: #fb923c;
     }
 
     * { box-sizing: border-box; transition: background 0.3s ease, border 0.3s ease; }
     
     body {
-      margin: 0;
-      font-family: "Inter", system-ui, sans-serif;
-      background: var(--bg-main);
-      color: var(--text-primary);
-      overflow: hidden;
+      margin: 0; font-family: "Inter", sans-serif;
+      background: var(--bg-main); color: var(--text-primary); overflow: hidden;
     }
 
     .app {
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      height: 100vh;
-      background: 
-        radial-gradient(circle at top left, var(--accent) 0%, transparent 40%),
-        radial-gradient(circle at bottom right, var(--accent-soft) 0%, transparent 40%),
-        var(--bg-main);
+      display: grid; grid-template-rows: auto 1fr auto; height: 100vh;
+      background: radial-gradient(circle at top left, var(--accent) 0%, transparent 35%),
+                  radial-gradient(circle at bottom right, var(--accent-soft) 0%, transparent 35%),
+                  var(--bg-main);
     }
 
-    /* Improved Glassmorphism Header */
     header.top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 24px;
-      background: var(--glass);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border-subtle);
-      z-index: 20;
+      display: flex; align-items: center; justify-content: space-between; padding: 12px 24px;
+      background: var(--glass); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-subtle); z-index: 20;
     }
 
     .logo-area { display: flex; align-items: center; gap: 10px; }
     .logo-dot {
-      width: 34px; height: 34px; border-radius: 10px;
-      background: linear-gradient(135deg, #fff, var(--accent));
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: 18px; color: #000;
+      width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #fff, var(--accent));
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; color: #000;
       box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
     }
     .brand { font-weight: 800; letter-spacing: -0.02em; font-size: 20px; }
 
-    .nav-tabs { display: flex; gap: 8px; background: rgba(0,0,0,0.3); border-radius: 14px; padding: 4px; }
+    .nav-tabs { display: flex; gap: 6px; background: rgba(0,0,0,0.3); border-radius: 14px; padding: 4px; }
     .nav-tab {
-      border: none; border-radius: 10px; padding: 8px 18px;
-      font-size: 14px; font-weight: 600; background: transparent;
-      color: var(--text-secondary); cursor: pointer; transition: 0.2s;
+      border: none; border-radius: 10px; padding: 8px 18px; font-size: 14px; font-weight: 600;
+      background: transparent; color: var(--text-secondary); cursor: pointer;
     }
     .nav-tab.active { background: #fff; color: #000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-    .nav-tab:hover:not(.active) { color: #fff; background: rgba(255,255,255,0.05); }
 
+    .top-right { display: flex; align-items: center; gap: 15px; }
     .search-bar {
-      display: flex; align-items: center; gap: 10px;
-      background: rgba(255,255,255,0.05); border-radius: 12px; padding: 6px 12px;
-      border: 1px solid var(--border-subtle);
+      display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05);
+      border-radius: 12px; padding: 6px 15px; border: 1px solid var(--border-subtle);
     }
-    .search-bar input { border: none; outline: none; background: transparent; color: #fff; width: 220px; }
+    .search-bar input { border: none; outline: none; background: transparent; color: #fff; width: 200px; font-size: 14px; }
 
-    .layout {
-      display: grid; grid-template-columns: 1fr 320px; gap: 20px;
-      padding: 20px 24px; overflow: hidden;
-    }
-
-    .main-pane { overflow-y: auto; padding-right: 8px; scrollbar-width: thin; }
-    
-    /* Better Sidebar Styling */
+    .layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; padding: 20px 24px; overflow: hidden; }
+    .main-pane { overflow-y: auto; padding-right: 8px; }
     .side-pane {
-      background: var(--glass);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      padding: 20px;
-      border: 1px solid var(--border-subtle);
-      display: flex; flex-direction: column; gap: 15px;
+      background: var(--glass); backdrop-filter: blur(10px); border-radius: 16px;
+      padding: 20px; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 15px;
     }
 
-    /* Improved Cards */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; padding-bottom: 40px; }
     .card {
       background: var(--bg-elevated); border-radius: 14px; padding: 12px; cursor: pointer;
-      position: relative; border: 1px solid transparent; transition: 0.3s;
+      position: relative; transition: 0.3s; border: 1px solid transparent;
     }
     .card:hover { 
-      background: var(--bg-hover); border-color: var(--border-subtle); 
-      transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+      background: var(--bg-hover); transform: translateY(-5px); 
+      box-shadow: 0 12px 30px rgba(0,0,0,0.4); border-color: var(--border-subtle);
     }
     .thumb { 
-      border-radius: 10px; aspect-ratio: 1/1; 
+      border-radius: 10px; aspect-ratio: 16/9; margin-bottom: 12px; overflow: hidden;
       background: linear-gradient(135deg, var(--accent), var(--accent-soft));
-      margin-bottom: 12px; overflow: hidden; 
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
     }
     .thumb img { width: 100%; height: 100%; object-fit: cover; }
     
     .play-fab {
-      position: absolute; right: 16px; bottom: 65px; width: 45px; height: 45px;
-      border-radius: 50%; background: var(--accent); display: flex; 
-      align-items: center; justify-content: center; opacity: 0; transform: translateY(10px);
-      transition: 0.3s; box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      position: absolute; right: 16px; bottom: 60px; width: 42px; height: 42px;
+      border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: translateY(10px); transition: 0.3s;
     }
     .card:hover .play-fab { opacity: 1; transform: translateY(0); }
 
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+    .tag { 
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); 
+      color: var(--text-secondary); padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer;
+    }
+    .tag:hover { background: var(--accent); color: #fff; }
+
     /* Settings UI */
-    .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-top: 20px; }
+    .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-top: 20px; }
     .theme-opt {
       padding: 15px; border-radius: 12px; border: 2px solid var(--border-subtle);
-      cursor: pointer; text-align: center; font-weight: 600; transition: 0.2s;
+      cursor: pointer; text-align: center; font-weight: 600;
     }
-    .theme-opt:hover { border-color: var(--accent); }
     .theme-opt.active { border-color: var(--accent); background: rgba(255,255,255,0.05); }
-    .color-preview { width: 30px; height: 30px; border-radius: 50%; margin: 0 auto 10px; }
+    .color-preview { width: 24px; height: 24px; border-radius: 50%; margin: 0 auto 10px; }
 
-    /* Player Styling */
     footer.player {
       display: grid; grid-template-columns: 300px 1fr 300px; align-items: center;
-      padding: 16px 32px; background: var(--glass); backdrop-filter: blur(25px);
-      border-top: 1px solid var(--border-subtle);
+      padding: 16px 32px; background: var(--glass); backdrop-filter: blur(25px); border-top: 1px solid var(--border-subtle);
     }
-    .bar { flex: 1; height: 6px; border-radius: 10px; background: rgba(255,255,255,0.1); overflow: hidden; cursor: pointer; }
+    .bar { flex: 1; height: 6px; border-radius: 10px; background: rgba(255,255,255,0.1); position: relative; cursor: pointer; overflow: hidden; }
     .bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-soft)); width: 0%; }
 
-    /* Auth Overlay Cleanup */
+    /* Auth Overlay */
     .auth-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px);
       display: flex; align-items: center; justify-content: center; z-index: 100;
     }
     .auth-card {
-      width: 380px; background: #111; border-radius: 24px; padding: 32px;
-      border: 1px solid #333; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+      width: 380px; background: #111; border-radius: 24px; padding: 32px; border: 1px solid #333;
     }
     .pill {
       border-radius: 12px; border: 1px solid #333; background: transparent; color: #fff;
-      padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%;
+      padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 10px;
     }
     .pill.solid { background: var(--accent); border: none; }
+    .auth-input { background: #181818; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 10px; outline: none; }
 
     #ytPlayerWrapper {
-      position: fixed; bottom: 100px; left: 24px; width: 320px; height: 0;
-      opacity: 0; border-radius: 16px; overflow: hidden; transition: 0.3s;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      position: fixed; bottom: 100px; left: 24px; width: 300px; height: 0; opacity: 0;
+      border-radius: 16px; overflow: hidden; transition: 0.3s; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
     }
-    #ytPlayerWrapper.show { height: 180px; opacity: 1; }
+    #ytPlayerWrapper.show { height: 170px; opacity: 1; }
   </style>
 </head>
 <body>
 
   <div class="auth-overlay" id="authOverlay">
     <div class="auth-card">
-      <div class="brand" style="margin-bottom: 10px; text-align: center;">MyFy</div>
-      <div style="font-size: 14px; color: var(--text-secondary); text-align: center; margin-bottom: 24px;">Sign in to sync your library and themes.</div>
-
-      <div class="nav-tabs" style="margin-bottom: 20px;">
+      <div class="brand" style="text-align:center; margin-bottom:10px;">MyFy</div>
+      <p style="text-align:center; color:var(--text-secondary); font-size:14px; margin-bottom:24px;">Sign in to unlock full YouTube search and libraries.</p>
+      
+      <div class="nav-tabs" style="margin-bottom:20px;">
         <button id="loginTab" class="nav-tab active" style="flex:1">Log in</button>
         <button id="signupTab" class="nav-tab" style="flex:1">Sign up</button>
       </div>
 
       <div class="auth-form">
-        <button type="button" class="pill" id="googleBtn" style="margin-bottom: 10px;">Continue with Google</button>
-        <button type="button" class="pill" id="githubBtn" style="margin-bottom: 20px;">Continue with GitHub</button>
+        <button class="pill" id="googleBtn">Continue with Google</button>
+        <button class="pill" id="githubBtn">Continue with GitHub</button>
+        <button class="pill" id="yahooBtn">Continue with Yahoo</button>
         
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom: 20px;">
-          <hr style="flex:1; border:0; border-top:1px solid #333;">
-          <span style="font-size: 12px; color: #666;">OR</span>
-          <hr style="flex:1; border:0; border-top:1px solid #333;">
+        <div style="display:flex; align-items:center; gap:10px; margin:15px 0;">
+          <hr style="flex:1; border:0; border-top:1px solid #333;"><span style="font-size:12px; color:#666;">OR</span><hr style="flex:1; border:0; border-top:1px solid #333;">
         </div>
 
-        <div style="margin-bottom: 15px;">
-          <div class="g-recaptcha" data-sitekey="6Ler4icsAAAAAOa9mOF-wxVRLBIaVGQiN5LL_BTA" data-callback="onCaptchaSuccess"></div>
-        </div>
+        <div class="g-recaptcha" data-sitekey="6Ler4icsAAAAAOa9mOF-wxVRLBIaVGQiN5LL_BTA" data-callback="onCaptchaSuccess" style="margin-bottom:15px;"></div>
 
-        <input type="email" id="authEmail" placeholder="Email address" class="pill" style="background:#181818; margin-bottom: 10px;">
-        <input type="password" id="authPassword" placeholder="Password" class="pill" style="background:#181818; margin-bottom: 10px;">
+        <input type="email" id="authEmail" placeholder="Email address" class="auth-input">
+        <input type="password" id="authPassword" placeholder="Password" class="auth-input">
+        <div id="authError" style="color:#ff4444; font-size:12px; margin-bottom:10px;"></div>
         
-        <div class="auth-error" id="authError" style="color: #ff4444; font-size: 12px; margin-bottom: 10px; min-height: 15px;"></div>
-        
-        <button type="button" class="pill solid" id="authSubmit">Continue</button>
-        <button type="button" id="resetPasswordBtn" style="background:none; border:none; color:var(--text-secondary); font-size:12px; margin-top:15px; cursor:pointer; width:100%;">Forgot password?</button>
+        <button class="pill solid" id="authSubmit">Continue</button>
+        <button id="resetPasswordBtn" style="background:none; border:none; color:var(--text-secondary); width:100%; font-size:12px; cursor:pointer;">Forgot password?</button>
       </div>
     </div>
   </div>
 
   <div class="app">
     <header class="top">
-      <div class="logo-area">
-        <div class="logo-dot">▶</div>
-        <div class="brand">MyFy</div>
-      </div>
-
+      <div class="logo-area"><div class="logo-dot">▶</div><div class="brand">MyFy</div></div>
       <div class="nav-tabs">
         <button class="nav-tab active" data-tab="featured">Featured</button>
         <button class="nav-tab" data-tab="search">Search</button>
         <button class="nav-tab" data-tab="library">Library</button>
         <button class="nav-tab" data-tab="settings">Settings</button>
       </div>
-
-      <div class="top-right" style="display:flex; align-items:center; gap:15px;">
+      <div class="top-right">
         <form id="searchForm" class="search-bar" style="display:none;">
           <span>🔍</span>
           <input id="searchInput" type="text" placeholder="Search YouTube..." />
         </form>
-        <span class="welcome" id="welcomeLabel" style="font-size: 13px; font-weight: 600;">Welcome, guest</span>
-        <button class="pill" id="logoutBtn" style="display:none; width:auto; padding: 6px 15px;">Log out</button>
+        <span id="welcomeLabel" style="font-size:13px; font-weight:600;">Welcome, guest</span>
+        <button class="pill" id="logoutBtn" style="display:none; width:auto; padding:6px 15px; margin:0;">Log out</button>
       </div>
     </header>
 
     <div class="layout">
       <main class="main-pane">
         <section id="featuredSection">
-          <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 10px;">Good vibes only</h1>
-          <p style="color: var(--text-secondary); margin-bottom: 30px;">Curated tracks and local favorites.</p>
+          <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 5px;">Good vibes only</h1>
+          <p style="color:var(--text-secondary); margin-bottom:25px;">Hand-picked local tracks and top hits.</p>
           <div class="grid" id="featuredGrid"></div>
         </section>
 
         <section id="searchSection" style="display:none;">
-          <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 20px;">Explore</h1>
+          <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 5px;">Explore</h1>
+          <div class="tags">
+            <button class="tag">Lofi Hip Hop</button><button class="tag">Phonk</button><button class="tag">Gaming Music</button><button class="tag">d4vd</button>
+          </div>
+          <p id="resultsSubtitle" style="color:var(--text-secondary); margin-bottom:20px;">Search for anything on YouTube.</p>
           <div class="grid" id="resultsGrid"></div>
         </section>
 
         <section id="librarySection" style="display:none;">
-          <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 20px;">Your Library</h1>
+          <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 5px;">Your Library</h1>
+          <p id="librarySubtitle" style="color:var(--text-secondary); margin-bottom:20px;">Tracks you've liked.</p>
           <div class="grid" id="libraryGrid"></div>
         </section>
 
         <section id="settingsSection" style="display:none;">
-          <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 10px;">Settings</h1>
-          <p style="color: var(--text-secondary); margin-bottom: 30px;">Personalize your MyFy experience.</p>
-          
-          <h2 style="font-size: 20px;">Appearance</h2>
+          <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 30px;">Settings</h1>
+          <h2 style="font-size:20px;">Appearance</h2>
           <div class="settings-grid">
-            <div class="theme-opt active" data-theme="midnight">
-              <div class="color-preview" style="background: #ff0000; box-shadow: 0 0 10px #ff0000;"></div>
-              Midnight
-            </div>
-            <div class="theme-opt" data-theme="ocean">
-              <div class="color-preview" style="background: #0077ff; box-shadow: 0 0 10px #0077ff;"></div>
-              Ocean
-            </div>
-            <div class="theme-opt" data-theme="emerald">
-              <div class="color-preview" style="background: #10b981; box-shadow: 0 0 10px #10b981;"></div>
-              Emerald
-            </div>
-            <div class="theme-opt" data-theme="sunset">
-              <div class="color-preview" style="background: #f43f5e; box-shadow: 0 0 10px #f43f5e;"></div>
-              Sunset
-            </div>
+            <div class="theme-opt active" data-theme="midnight"><div class="color-preview" style="background:#ff0000;"></div>Midnight</div>
+            <div class="theme-opt" data-theme="ocean"><div class="color-preview" style="background:#0077ff;"></div>Ocean</div>
+            <div class="theme-opt" data-theme="emerald"><div class="color-preview" style="background:#10b981;"></div>Emerald</div>
+            <div class="theme-opt" data-theme="sunset"><div class="color-preview" style="background:#f43f5e;"></div>Sunset</div>
           </div>
         </section>
       </main>
 
       <aside class="side-pane">
         <h3 style="margin:0; font-size:18px;">Now Playing</h3>
-        <div id="lyricsMeta" style="font-size:13px; color:var(--text-secondary);">Select a track to see details</div>
-        <div id="lyricsBody" style="background:rgba(0,0,0,0.2); padding:15px; border-radius:12px; font-size:14px; line-height:1.6; height:100%; overflow-y:auto;">
-          Lyrics and track info will appear here.
+        <div id="lyricsMeta" style="font-size:12px; color:var(--text-secondary);">Select a track...</div>
+        <div id="lyricsBody" style="background:rgba(0,0,0,0.2); padding:15px; border-radius:12px; font-size:14px; line-height:1.6; flex:1; overflow-y:auto; white-space:pre-line;">
+          Track information and safe lyrics will appear here.
         </div>
       </aside>
     </div>
 
     <footer class="player">
-      <div class="player-left" style="display:flex; align-items:center; gap:15px;">
-        <div id="playerThumb" style="width:56px; height:56px; border-radius:8px; background:var(--bg-elevated); overflow:hidden;"></div>
+      <div class="player-left" style="display:flex; align-items:center; gap:12px;">
+        <div id="playerThumb" style="width:50px; height:50px; border-radius:8px; background:var(--bg-elevated); overflow:hidden;"></div>
         <div style="min-width:0;">
-          <div id="playerTitle" style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Not Playing</div>
+          <div id="playerTitle" style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:14px;">Nothing playing</div>
           <div id="playerArtist" style="font-size:12px; color:var(--text-secondary);">Choose a song</div>
         </div>
       </div>
 
-      <div class="player-center" style="display:flex; flex-direction:column; align-items:center; gap:10px;">
-        <div class="controls" style="display:flex; gap:25px; font-size:24px; cursor:pointer;">
+      <div class="player-center" style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <div style="display:flex; gap:25px; font-size:20px; cursor:pointer; align-items:center;">
           <span id="prevBtn">⏮</span>
-          <span id="playBtn" style="background:var(--accent); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px;">▶</span>
+          <span id="playBtn" style="background:var(--accent); width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px;">▶</span>
           <span id="nextBtn">⏭</span>
         </div>
-        <div style="display:flex; align-items:center; gap:10px; width:100%; font-size:12px; color:var(--text-secondary);">
+        <div style="display:flex; align-items:center; gap:10px; width:100%; font-size:11px; color:var(--text-secondary);">
           <span id="timeCurrent">0:00</span>
           <div class="bar" id="progressBar"><div class="bar-fill" id="progressFill"></div></div>
           <span id="timeTotal">0:00</span>
         </div>
       </div>
 
-      <div class="player-right" style="display:flex; justify-content:flex-end; align-items:center; gap:20px;">
+      <div class="player-right" style="display:flex; justify-content:flex-end; align-items:center; gap:15px;">
         <button id="saveBtn" style="background:none; border:none; color:white; cursor:pointer; font-size:20px;">♡</button>
         <div style="display:flex; align-items:center; gap:8px;">
           <span>🔊</span>
-          <div class="bar" id="volumeBar" style="width:80px;"><div class="bar-fill" id="volumeFill" style="width:70%;"></div></div>
+          <div class="bar" id="volumeBar" style="width:70px;"><div class="bar-fill" id="volumeFill" style="width:70%;"></div></div>
         </div>
-        <button class="pill" id="toggleVideoBtn" style="width:auto; padding:5px 12px; font-size:11px;">Video</button>
+        <button class="pill" id="toggleVideoBtn" style="width:auto; padding:5px 12px; font-size:11px; margin:0;">Video</button>
       </div>
     </footer>
   </div>
@@ -339,7 +286,7 @@
   <div id="ytPlayerWrapper"><div id="ytPlayer"></div></div>
 
   <script>
-    // ---- Config & Auth ----
+    // ---- CONFIGS ----
     const YT_API_KEY = "AIzaSyCAI5uYDCGWGP_2NyUpkzTe4B-FzO0wmPo";
     const firebaseConfig = {
       apiKey: "AIzaSyCWQvsuaaNpNWSNr8PmI9IMt8dC7hyaxu8",
@@ -352,127 +299,175 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // ---- Theming Logic ----
-    const themeOpts = document.querySelectorAll('.theme-opt');
-    function setTheme(themeName) {
-      document.body.className = '';
-      if (themeName !== 'midnight') document.body.classList.add('theme-' + themeName);
-      localStorage.setItem('myfy_theme', themeName);
-      themeOpts.forEach(opt => {
-        opt.classList.toggle('active', opt.dataset.theme === themeName);
-      });
+    // ---- STATE ----
+    let currentList = [];
+    let currentIndex = -1;
+    let currentSource = null; // 'local' or 'yt'
+    const audioPlayer = new Audio();
+    let ytPlayer = null;
+    let captchaVerified = false;
+
+    // ---- THEMES ----
+    function setTheme(theme) {
+      document.body.className = theme === 'midnight' ? '' : 'theme-' + theme;
+      localStorage.setItem('myfy_theme', theme);
+      document.querySelectorAll('.theme-opt').forEach(opt => opt.classList.toggle('active', opt.dataset.theme === theme));
     }
-    themeOpts.forEach(opt => opt.addEventListener('click', () => setTheme(opt.dataset.theme)));
-    // Load saved theme
+    document.querySelectorAll('.theme-opt').forEach(opt => opt.addEventListener('click', () => setTheme(opt.dataset.theme)));
     setTheme(localStorage.getItem('myfy_theme') || 'midnight');
 
-    // ---- DOM Elements ----
-    const navTabs = document.querySelectorAll(".nav-tab");
-    const sections = {
-      featured: document.getElementById("featuredSection"),
-      search: document.getElementById("searchSection"),
-      library: document.getElementById("librarySection"),
-      settings: document.getElementById("settingsSection")
-    };
+    // ---- AUTH LOGIC ----
+    window.onCaptchaSuccess = () => { captchaVerified = true; document.getElementById("authError").textContent = ""; };
     
-    // Tab Switching
-    navTabs.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const target = btn.dataset.tab;
-        navTabs.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        Object.keys(sections).forEach(s => sections[s].style.display = s === target ? "block" : "none");
-        document.getElementById("searchForm").style.display = target === "search" ? "flex" : "none";
-      });
+    function requireAuth() {
+      if (!captchaVerified) { alert("Please complete the reCAPTCHA"); return false; }
+      if (!auth.currentUser) { document.getElementById("authOverlay").style.display = "flex"; return false; }
+      return true;
+    }
+
+    auth.onAuthStateChanged(user => {
+      const overlay = document.getElementById("authOverlay");
+      const welcome = document.getElementById("welcomeLabel");
+      const logout = document.getElementById("logoutBtn");
+      if (user && user.emailVerified) {
+        overlay.style.display = "none";
+        welcome.textContent = "Hi, " + (user.displayName || user.email.split('@')[0]);
+        logout.style.display = "block";
+        renderLibrary();
+      } else {
+        overlay.style.display = "flex";
+        logout.style.display = "none";
+      }
     });
 
-    // ---- Player Engine (Core features preserved) ----
+    document.getElementById("googleBtn").onclick = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+    document.getElementById("githubBtn").onclick = () => auth.signInWithPopup(new firebase.auth.GithubAuthProvider());
+    document.getElementById("yahooBtn").onclick = () => auth.signInWithPopup(new firebase.auth.OAuthProvider("yahoo.com"));
+    document.getElementById("logoutBtn").onclick = () => auth.signOut();
+
+    document.getElementById("authSubmit").onclick = () => {
+      const email = document.getElementById("authEmail").value;
+      const pass = document.getElementById("authPassword").value;
+      if (!requireAuth()) return;
+      auth.signInWithEmailAndPassword(email, pass).catch(e => document.getElementById("authError").textContent = e.message);
+    };
+
+    // ---- SEARCH ENGINE ----
+    async function searchYouTube(term) {
+      if (!requireAuth()) return;
+      const resultsGrid = document.getElementById("resultsGrid");
+      const sub = document.getElementById("resultsSubtitle");
+      sub.textContent = "Searching YouTube...";
+      resultsGrid.innerHTML = "";
+      
+      try {
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=20&q=${encodeURIComponent(term)}&key=${YT_API_KEY}`);
+        const data = await res.json();
+        const tracks = data.items.map(item => ({
+          id: item.id.videoId,
+          kind: "yt",
+          videoId: item.id.videoId,
+          title: item.snippet.title,
+          artist: item.snippet.channelTitle,
+          thumb: item.snippet.thumbnails.medium.url
+        }));
+        currentList = tracks;
+        sub.textContent = `Found ${tracks.length} results for "${term}"`;
+        renderGrid("resultsGrid", tracks, "search");
+      } catch (e) {
+        sub.textContent = "Search failed. Check your connection or API key.";
+      }
+    }
+
+    document.getElementById("searchForm").onsubmit = (e) => { e.preventDefault(); searchYouTube(document.getElementById("searchInput").value); };
+    document.querySelectorAll(".tag").forEach(tag => tag.onclick = () => {
+      document.getElementById("searchInput").value = tag.textContent;
+      searchYouTube(tag.textContent);
+      document.querySelector('[data-tab="search"]').click();
+    });
+
+    // ---- PLAYER LOGIC ----
     const featuredTracks = [
       { id:"l1", kind:"local", src:"Golden By HUNTERX.mp3", title:"Golden", artist:"HUNTERX", videoId:"dQw4w9WgXcQ" },
       { id:"l2", kind:"local", src:"d4vd - Romantic Homicide.mp3", title:"Romantic Homicide", artist:"d4vd", thumb:"https://i.ytimg.com/vi/tPEE9ZwTmy0/mqdefault.jpg", videoId:"tPEE9ZwTmy0" },
       { id:"l3", kind:"local", src:"Crab Rave By Noisestorm.mp3", title:"Crab Rave", artist:"Noisestorm", thumb:"https://i.ytimg.com/vi/LDU_Txk06tM/mqdefault.jpg", videoId:"LDU_Txk06tM" }
     ];
 
-    let currentList = featuredTracks;
-    let currentIndex = -1;
-    let currentSource = null;
-    const audioPlayer = new Audio();
-    let ytPlayer = null;
-
-    function playFromIndex(index) {
-      const track = currentList[index];
+    function playFromIndex(index, list) {
+      currentList = list;
       currentIndex = index;
+      const track = list[index];
       
-      // Update UI
       document.getElementById("playerTitle").textContent = track.title;
       document.getElementById("playerArtist").textContent = track.artist;
-      document.getElementById("playerThumb").innerHTML = track.thumb ? `<img src="${track.thumb}">` : '';
-      
-      audioPlayer.pause();
-      if(ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
+      document.getElementById("playerThumb").innerHTML = track.thumb ? `<img src="${track.thumb}">` : `<div style="padding:15px;">🎵</div>`;
+      document.getElementById("lyricsMeta").textContent = `${track.title} - ${track.artist}`;
+      document.getElementById("lyricsBody").textContent = `Playing from ${track.kind === 'local' ? 'Local Storage' : 'YouTube'}.\n\nTitle: ${track.title}\nArtist: ${track.artist}`;
 
-      if(track.kind === "local") {
+      audioPlayer.pause();
+      if (ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
+
+      if (track.kind === "local") {
         currentSource = "local";
         audioPlayer.src = track.src;
         audioPlayer.play();
       } else {
         currentSource = "yt";
-        if(ytPlayer) ytPlayer.loadVideoById(track.videoId);
+        if (!ytPlayer) {
+          ytPlayer = new YT.Player("ytPlayer", {
+            videoId: track.videoId,
+            events: { onStateChange: (e) => { if(e.data === YT.PlayerState.ENDED) playNext(); } }
+          });
+        } else {
+          ytPlayer.loadVideoById(track.videoId);
+        }
       }
       document.getElementById("playBtn").textContent = "⏸";
     }
 
-    // Initialize Grid
-    function renderGrid(containerId, list, type) {
-      const grid = document.getElementById(containerId);
+    function renderGrid(id, list, type) {
+      const grid = document.getElementById(id);
       grid.innerHTML = "";
       list.forEach((t, i) => {
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
-          <div class="thumb">${t.thumb ? `<img src="${t.thumb}">` : t.title[0]}</div>
-          <div style="font-weight:700; font-size:14px; margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${t.title}</div>
+          <div class="thumb">${t.thumb ? `<img src="${t.thumb}">` : '🎵'}</div>
+          <div class="card-title">${t.title}</div>
           <div style="font-size:12px; color:var(--text-secondary);">${t.artist}</div>
           <div class="play-fab">▶</div>
         `;
-        card.onclick = () => { currentList = list; playFromIndex(i); };
+        card.onclick = () => playFromIndex(i, list);
         grid.appendChild(card);
       });
     }
 
-    // Basic UI Setup
+    // ---- INITIALIZE ----
     renderGrid("featuredGrid", featuredTracks, "featured");
-    document.getElementById("playBtn").onclick = () => {
-      if(currentIndex === -1) playFromIndex(0);
-      else {
-        if(currentSource === "local") audioPlayer.paused ? audioPlayer.play() : audioPlayer.pause();
-        document.getElementById("playBtn").textContent = audioPlayer.paused ? "▶" : "⏸";
-      }
-    };
 
-    // Auth Overlay Logic
-    let captchaVerified = false;
-    window.onCaptchaSuccess = () => { captchaVerified = true; };
-    
-    auth.onAuthStateChanged(user => {
-      const overlay = document.getElementById("authOverlay");
-      const welcome = document.getElementById("welcomeLabel");
-      if(user && user.emailVerified) {
-        overlay.style.display = "none";
-        welcome.textContent = "Hi, " + (user.displayName || user.email.split('@')[0]);
-        document.getElementById("logoutBtn").style.display = "block";
-      } else {
-        overlay.style.display = "flex";
-      }
+    // Tab Switching
+    document.querySelectorAll(".nav-tab").forEach(btn => {
+      btn.onclick = () => {
+        const tab = btn.dataset.tab;
+        document.querySelectorAll(".nav-tab").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.querySelectorAll("main section").forEach(s => s.style.display = "none");
+        document.getElementById(tab + "Section").style.display = "block";
+        document.getElementById("searchForm").style.display = tab === "search" ? "flex" : "none";
+      };
     });
 
-    document.getElementById("logoutBtn").onclick = () => auth.signOut();
-    document.getElementById("authSubmit").onclick = () => {
-      const email = document.getElementById("authEmail").value;
-      const pass = document.getElementById("authPassword").value;
-      if(!captchaVerified) return alert("Please complete reCAPTCHA");
-      auth.signInWithEmailAndPassword(email, pass).catch(e => alert(e.message));
-    };
+    // Simple Progress Update
+    setInterval(() => {
+      let cur = 0, dur = 0;
+      if (currentSource === "local") { cur = audioPlayer.currentTime; dur = audioPlayer.duration; }
+      else if (currentSource === "yt" && ytPlayer && ytPlayer.getCurrentTime) { cur = ytPlayer.getCurrentTime(); dur = ytPlayer.getDuration(); }
+      if (dur) {
+        document.getElementById("progressFill").style.width = (cur / dur * 100) + "%";
+        document.getElementById("timeCurrent").textContent = Math.floor(cur/60) + ":" + ("0"+Math.floor(cur%60)).slice(-2);
+        document.getElementById("timeTotal").textContent = Math.floor(dur/60) + ":" + ("0"+Math.floor(dur%60)).slice(-2);
+      }
+    }, 500);
 
   </script>
 </body>
